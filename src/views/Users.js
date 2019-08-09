@@ -1,14 +1,17 @@
 import React from "react";
 import { Container, Row, Col, Card, CardHeader, CardBody } from "shards-react";
+
 import { Store } from "../flux";
 import PageTitle from "../components/common/PageTitle";
-import { Redirect } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 
 class Users extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
-      users: []
+      users: [],
+      userConsult: '',
+      redirect: false
     }
   }
   callAPI() {
@@ -18,9 +21,6 @@ class Users extends React.Component {
           this.setState({ users: res })
         });
   }
-  onClickHandler = (id) => {
-    <Redirect to="/user/${id}" />
-  }
 
   componentDidMount() {
       this.callAPI();
@@ -28,7 +28,13 @@ class Users extends React.Component {
   }
   render() {
     var users = this.state.users;
-    const displayTurtles = users.map((item) => <tr className="btn-link" onClick={this.onClickHandler(item.id)}><td>{item.displayName}</td><td>{item.user}</td><td>{item.correo}</td><td>{item.privilege}</td></tr> )
+    const displayTurtles = users.map((item) =>
+      <tr className="btn-link">
+        <td><NavLink to={`/user/${item.id}`}>{item.displayName}</NavLink></td>
+        <td><NavLink to={`/user/${item.id}`}>{item.user}</NavLink></td>
+        <td><NavLink to={`/user/${item.id}`}>{item.correo}</NavLink></td>
+        <td><NavLink to={`/user/${item.id}`}>{item.privilege}</NavLink></td>
+      </tr> )
     return (
       <Container fluid className="main-content-container px-4">
         {/* Page Header */}

@@ -11,6 +11,7 @@ import AddNewPost from "./views/AddNewPost";
 import Errors from "./views/Errors";
 import ComponentsOverview from "./views/ComponentsOverview";
 import Users from "./views/Users";
+import User from "./views/User";
 import Tables from "./views/Tables";
 import BlogPosts from "./views/BlogPosts";
 
@@ -25,6 +26,11 @@ export default [
     path: "/users",
     layout: DefaultLayout,
     component: Users
+  },
+  {
+    path: "/user/:id",
+    layout: DefaultLayout,
+    component: User
   },
   {
     path: "/blog-overview",

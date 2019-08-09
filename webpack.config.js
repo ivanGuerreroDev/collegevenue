@@ -64,6 +64,7 @@ var config = {
   devServer: {
     host: "localhost", // Defaults to `localhost`
     port: 3002, // Defaults to 8080,
+    historyApiFallback: true,
     proxy: {
       "^/api/*": {
         target: "http://localhost:3002/",
