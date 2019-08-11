@@ -23,7 +23,8 @@ class User extends React.Component {
   constructor(props) {
     super(props);
     this.state = { 
-      user:{}
+      user:{},
+      idUser: this.props.match.params.id,
     }
     this.updateUser = this.updateUser.bind(this);
     this.createUser = this.createUser.bind(this);
@@ -129,7 +130,7 @@ class User extends React.Component {
   componentDidMount() { 
     if(this.props.match.params.id){
       this.callAPI(); 
-      this.setState({subtitle: 'Edit data user', title: 'User', titleCard: 'Edit User', idUser: this.props.match.params.id,})
+      this.setState({subtitle: 'Edit data user', title: 'User', titleCard: 'Edit User', })
     }else{
       this.setState({subtitle: 'Create user', title: 'User', titleCard: 'User Info'})
     } 
