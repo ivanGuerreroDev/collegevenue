@@ -1,5 +1,5 @@
 import React from "react";
-import { Container, Row, Col, Card, CardHeader, CardBody } from "shards-react";
+import { Container, Row, Col, Card, CardHeader, CardBody, Button} from "shards-react";
 
 import { Store } from "../flux";
 import PageTitle from "../components/common/PageTitle";
@@ -21,10 +21,8 @@ class Users extends React.Component {
           this.setState({ users: res })
         });
   }
-
   componentDidMount() {
-      this.callAPI();
-       
+    this.callAPI();
   }
   render() {
     var users = this.state.users;
@@ -38,8 +36,9 @@ class Users extends React.Component {
     return (
       <Container fluid className="main-content-container px-4">
         {/* Page Header */}
-        <Row noGutters className="page-header py-4">
+        <Row noGutters className="page-header py-4 align-items-center">
           <PageTitle sm="4" title="User list" subtitle="Users" className="text-sm-left" />
+          <Col sm="8" className="text-right"><Button href='/user/'>Create user</Button></Col>
         </Row>
     
         {/* Default Light Table */}

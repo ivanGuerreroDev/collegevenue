@@ -12,8 +12,9 @@ const users = require("./routes/users");
 
 app.use(express.static(__dirname + "/public"));
 
-app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+
 
 
 

@@ -10,7 +10,7 @@ const SRC = path.resolve(__dirname, "public");
 
 var config = {
   context: path.join(__dirname, "src"),
-  devtool: debug ? "inline-sourcemap" : false,
+  devtool: debug ? "eval" : false,
   entry: APP_DIR + "/index.js",
   watch: true,
   output: {
@@ -63,11 +63,11 @@ var config = {
   },
   devServer: {
     host: "localhost", // Defaults to `localhost`
-    port: 3002, // Defaults to 8080,
+    port: 3000, // Defaults to 8080,
     historyApiFallback: true,
     proxy: {
       "^/api/*": {
-        target: "http://localhost:3002/",
+        target: "http://localhost:3004/",
         secure: false
       }
     }

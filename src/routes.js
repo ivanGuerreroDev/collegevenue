@@ -28,7 +28,7 @@ export default [
     component: Users
   },
   {
-    path: "/user/:id",
+    path: "/user/:id?",
     layout: DefaultLayout,
     component: User
   },

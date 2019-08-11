@@ -34,25 +34,49 @@ router.get('/user/:id', function(req, res, next) {
   
 });
 
-router.post('/user/:id', function(req, res, next) {
-  var id = req.params.id
-  var dataUpdate;
+router.post('/user', function(req, res, next) {
+  
+  var dataUpdate = '';
   var i=0;
-  req.body.forEach(function(e, index){
-    dataUpdate += req.body[index]+' = "'+e+'"';
-    if(i!=req.body.length) dataUpdate += ', ';
+  for(var key in req.body){
+    if(key != 'id') {
+      dataUpdate += key +" = '"+req.body[key]+"'";
+      if(i!=Object.keys(req.body).length-1) dataUpdate += ', ';
+    }
     i++
-  })
-  connection.query(`
-    UPDATE set
-    ${dataUpdate} 
-    WHERE id = ${id}
-  `,function(err,rows){
+  }
+  
+  connection.query(`UPDATE users SET ${dataUpdate} WHERE id = ${req.body.id}`,function(err,rows){
     if(err){
      console.log(err)
      res.status(500);   
     }else{
-        return res.json({notice: 'Actualizado'}); 
+        return res.json({notice: 'Updated'}); 
+    }                  
+  });
+  
+});
+
+router.post('/user/create', function(req, res, next) {
+
+  var columns = '';
+  var values = '';
+  var i=0;
+  for(var key in req.body){
+    if(key != 'id') {
+      columns += key 
+      values += "'"+req.body[key]+"'";
+      if(i!=Object.keys(req.body).length-1) {columns += ', ';values += ', ';}
+    }
+    i++
+  }
+  connection.query(`INSERT INTO users (${columns}) VALUES (${values})`,function(err,rows){
+    if(err){
+      if(err.code == 'ER_DUP_ENTRY') res.json({error: 'Username or Email in use!'}); 
+      console.log(err)
+      res.status(500);   
+    }else{
+        return res.json({notice: 'User created'}); 
     }                  
   });
   
