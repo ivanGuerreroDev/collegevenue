@@ -7,34 +7,18 @@ import SidebarMainNavbar from "./SidebarMainNavbar";
 import SidebarSearch from "./SidebarSearch";
 import SidebarNavItems from "./SidebarNavItems";
 
-import { Store } from "../../../flux";
+import { connect } from 'react-redux'
+import { toggleSidebar } from '../../../redux/actions'
+//import { Store } from "../../../flux";
 
 class MainSidebar extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      menuVisible: false,
-      sidebarNavItems: Store.getSidebarItems()
+      menuVisible: this.props.sidebar,
+      sidebarNavItems: this.props.sidebarItems
     };
-
-    this.onChange = this.onChange.bind(this);
-  }
-
-  componentWillMount() {
-    Store.addChangeListener(this.onChange);
-  }
-
-  componentWillUnmount() {
-    Store.removeChangeListener(this.onChange);
-  }
-
-  onChange() {
-    this.setState({
-      ...this.state, 
-      menuVisible: Store.getMenuState(),
-      sidebarNavItems: Store.getSidebarItems()
-    });
   }
 
   render() {
@@ -71,4 +55,15 @@ MainSidebar.defaultProps = {
   hideLogoText: false
 };
 
-export default MainSidebar;
+const mapStateToProps = state => ({
+  sidebarItems: state.sidebarItems,
+  sidebar: state.sidebar
+})
+
+const mapDispatchToProps = dispatch => ({
+  toggleSidebar: () => dispatch(toggleSidebar())
+})
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(MainSidebar);

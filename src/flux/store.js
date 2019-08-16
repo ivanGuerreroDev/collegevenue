@@ -9,7 +9,7 @@ let _store = {
   menuVisible: false,
   navItems: getSidebarNavItems(),
   usuarios: getUsuariosData(),
-};
+}; 
 
 class Store extends EventEmitter {
   constructor() {
@@ -25,7 +25,7 @@ class Store extends EventEmitter {
     switch (actionType) {
       case Constants.TOGGLE_SIDEBAR:
         this.toggleSidebar();
-        break;
+        break; 
       default:
     }
   }

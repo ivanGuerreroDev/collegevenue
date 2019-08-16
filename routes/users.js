@@ -1,14 +1,31 @@
 const express = require('express');
 const router = express.Router();
-const config = require('../config.js');
 const path = require('path');
+var passport = require('passport')
 var connection  = require('../config/db');
-import { Store } from "../src/flux";
+var bcrypt = require('bcrypt');
+
 router.get('/', function(req, res, next) {
   res.sendFile(path.resolve(__dirname, '..', 'public', 'index.html'));
 })
 
-router.get('/users', function(req, res, next) {
+router.post("/login", passport.authenticate("local"), function(req, res) {
+  if(!req.body.correo){
+    return res.status(400).send({
+      valid: false,
+      message: 'Correo is required',
+    });
+  }else if(!req.body.password){
+    return res.status(400).send({
+      valid: false,
+      message: 'Password is required',
+    });
+  }
+  res.json({message: 'logueado', valid:true, user:req.user});
+});
+
+
+router.get('/users', isLoggedIn, function(req, res, next) {
   // GET/users/ route
   connection.query('SELECT * FROM users',function(err,rows){
     if(err){
@@ -21,7 +38,7 @@ router.get('/users', function(req, res, next) {
   
 });
 
-router.get('/user/:id', function(req, res, next) {
+router.get('/user/:id', isLoggedIn, function(req, res, next) {
   // GET/users/ route
   connection.query(`SELECT * FROM users WHERE id = ${req.params.id}`,function(err,rows){
     if(err){
@@ -34,7 +51,7 @@ router.get('/user/:id', function(req, res, next) {
   
 });
 
-router.post('/user', function(req, res, next) {
+router.post('/user', isLoggedIn, function(req, res, next) {
   
   var dataUpdate = '';
   var i=0;
@@ -45,7 +62,7 @@ router.post('/user', function(req, res, next) {
     }
     i++
   }
-  
+
   connection.query(`UPDATE users SET ${dataUpdate} WHERE id = ${req.body.id}`,function(err,rows){
     if(err){
      console.log(err)
@@ -57,11 +74,11 @@ router.post('/user', function(req, res, next) {
   
 });
 
-router.post('/user/create', function(req, res, next) {
-
+router.post('/user/create', isLoggedIn, function(req, res, next) {
   var columns = '';
   var values = '';
   var i=0;
+  req.body.password = bcrypt.hashSync(req.body.password, null, null);
   for(var key in req.body){
     if(key != 'id') {
       columns += key 
@@ -81,5 +98,15 @@ router.post('/user/create', function(req, res, next) {
   });
   
 });
+router.get('/logout', function(req, res) {
+  req.logout();
+  res.redirect('/');
+});
 
 module.exports = router;
+
+function isLoggedIn(req, res, next) {
+	if (req.isAuthenticated())
+		return next();
+	res.redirect('/');
+}
