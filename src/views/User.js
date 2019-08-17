@@ -35,6 +35,7 @@ class User extends React.Component {
         .then(res => res.json())
         .then(res => {
           this.setState({ user: res[0] })
+          console.log(res);
         });
   }
   
@@ -161,15 +162,28 @@ class User extends React.Component {
                         <Form>
                           <Row form>
                             <Col md="6">
-                              <label htmlFor="feDisplayName">Display Name</label>
+                              <label htmlFor="feDisplayName">First Name</label>
                               <FormInput
-                                id="feDisplayName"
+                                id="feFirstName"
                                 type="text"
-                                placeholder="Display Name"
-                                onChange={(e) => this.changeInput(e,'displayName')}
-                                value={this.state.user.displayName?this.state.user.displayName:null}
+                                placeholder="First Name"
+                                onChange={(e) => this.changeInput(e,'firstName')}
+                                value={this.state.user.firstName?this.state.user.firstName:null}
                               />
                             </Col>
+                            <Col md="6" className="form-group">
+                              <label htmlFor="feSurname">Surname</label>
+                              <FormInput
+                                  id="feSurname"
+                                  type="text"
+                                  placeholder="Surname"
+                                  onChange={(e) => this.changeInput(e,'surname')}
+                                  value={this.state.user.surname?this.state.user.surname:null}
+                                />
+                            </Col>
+                            
+                          </Row>
+                          <Row form>
                             <Col md="6" className="form-group">
                               <label htmlFor="feEmailAddress">Email</label>
                               <FormInput
@@ -179,19 +193,8 @@ class User extends React.Component {
                                 onChange={(e) => this.changeInput(e,'correo')}
                                 value={this.state.user.correo?this.state.user.correo:null}
                               />
-                            </Col>
-                            
-                          </Row>
-                          <Row form>
-                            <Col md="6" className="form-group">
-                              <label htmlFor="feUsername">Username</label>
-                              <FormInput
-                                id="feUsername"
-                                type="text"
-                                placeholder="Username"
-                                onChange={(e) => this.changeInput(e,'user')}
-                                value={this.state.user.user?this.state.user.user:null}
-                              />
+                              
+                              
                             </Col>
                             <Col md="6">
                               <label htmlFor="fePassword">Password</label>

@@ -28,8 +28,8 @@ class Users extends React.Component {
     var users = this.state.users;
     const displayTurtles = users.map((item) =>
       <tr className="btn-link">
-        <td><NavLink to={`/user/${item.id}`}>{item.displayName}</NavLink></td>
-        <td><NavLink to={`/user/${item.id}`}>{item.user}</NavLink></td>
+        <td><NavLink to={`/user/${item.id}`}>{item.firstName}</NavLink></td>
+        <td><NavLink to={`/user/${item.id}`}>{item.surname}</NavLink></td>
         <td><NavLink to={`/user/${item.id}`}>{item.correo}</NavLink></td>
         <td><NavLink to={`/user/${item.id}`}>{item.privilege}</NavLink></td>
       </tr> )
@@ -53,13 +53,13 @@ class Users extends React.Component {
                   <thead className="bg-light">
                     <tr>
                       <th scope="col" className="border-0">
-                        Nombre
+                        Firstname
                       </th>
                       <th scope="col" className="border-0">
-                        Usuario
+                        Surname
                       </th>
                       <th scope="col" className="border-0">
-                        correo
+                        Email
                       </th>
                       <th scope="col" className="border-0">
                         Privilege

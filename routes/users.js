@@ -26,32 +26,33 @@ router.post("/login", passport.authenticate("local"), function(req, res) {
 
 router.post("/register", function(req, res, next) {
   if(!req.body.firstname || !req.body.surname || !req.body.correo || !req.body.password || !req.body.gender) {
+    console.log(req.body);
     res.json({valid: false, error: 'Please fill all fields!'})
-  }else{
-    var columns = '', values = '', i=0;
-    req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
-    for(var key in req.body){
-      if(key != 'id') {
-        columns += key; values += "'"+req.body[key]+"'";
-        if(i!=Object.keys(req.body).length-1) {columns += ', ';values += ', ';}
-      } i++
-    }
-    columns+="privilege";values+="'user'";
-    connection.query(`INSERT INTO users (${columns}) VALUES (${values})`,function(err,rows){
-      if(err){
-        if(err.code == 'ER_DUP_ENTRY') {res.json({valid: false, error: 'Username or Email in use!'}); }
-        else{res.status(500);}
-      }else{
-        return res.json({valid:true, message: 'Resgistered'}); 
-      }                  
-    });
   }
+  var columns = '', values = '';
+  req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
+  for(var key in req.body){
+    if(key != 'id') {
+      columns += key; values += "'"+req.body[key]+"'";
+      columns += ', ';values += ', ';
+    } 
+  }
+  columns+="privilege";
+  values+="'user'";
+  connection.query(`INSERT INTO users (${columns}) VALUES (${values})`,function(err,rows){
+    if(err){
+      if(err.code == 'ER_DUP_ENTRY') {res.json({valid: false, error: 'Username or Email in use!'}); }
+      else{res.status(500);} 
+    }else{
+      return res.json({valid:true, message: 'Resgistered'}); 
+    }                  
+  });
 });
 
 
 router.get('/users', isLoggedIn, function(req, res, next) {
   // GET/users/ route
-  connection.query('SELECT * FROM users',function(err,rows){
+  connection.query('SELECT firstName, surname, correo, gender, privilege FROM users',function(err,rows){
     if(err){
      console.log(err)
      res.status(500);   
@@ -64,7 +65,7 @@ router.get('/users', isLoggedIn, function(req, res, next) {
 
 router.get('/user/:id', isLoggedIn, function(req, res, next) {
   // GET/users/ route
-  connection.query(`SELECT * FROM users WHERE id = ${req.params.id}`,function(err,rows){
+  connection.query(`SELECT firstName, surname, correo, gender, privilege FROM users WHERE id = ${req.params.id}`,function(err,rows){
     if(err){
      console.log(err)
      res.status(500);   
