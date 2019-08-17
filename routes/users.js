@@ -13,7 +13,7 @@ router.post("/login", passport.authenticate("local"), function(req, res) {
   if(!req.body.correo){
     return res.status(400).send({
       valid: false,
-      message: 'Correo is required',
+      message: 'Email is required',
     });
   }else if(!req.body.password){
     return res.status(400).send({
@@ -21,7 +21,31 @@ router.post("/login", passport.authenticate("local"), function(req, res) {
       message: 'Password is required',
     });
   }
-  res.json({message: 'logueado', valid:true, user:req.user});
+  res.json({message: 'Logged', valid:true, user:req.user});
+});
+
+router.post("/register", function(req, res, next) {
+  if(!req.body.firstname || !req.body.surname || !req.body.correo || !req.body.password || !req.body.gender) {
+    res.json({valid: false, error: 'Please fill all fields!'})
+  }else{
+    var columns = '', values = '', i=0;
+    req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
+    for(var key in req.body){
+      if(key != 'id') {
+        columns += key; values += "'"+req.body[key]+"'";
+        if(i!=Object.keys(req.body).length-1) {columns += ', ';values += ', ';}
+      } i++
+    }
+    columns+="privilege";values+="'user'";
+    connection.query(`INSERT INTO users (${columns}) VALUES (${values})`,function(err,rows){
+      if(err){
+        if(err.code == 'ER_DUP_ENTRY') {res.json({valid: false, error: 'Username or Email in use!'}); }
+        else{res.status(500);}
+      }else{
+        return res.json({valid:true, message: 'Resgistered'}); 
+      }                  
+    });
+  }
 });
 
 
@@ -78,7 +102,7 @@ router.post('/user/create', isLoggedIn, function(req, res, next) {
   var columns = '';
   var values = '';
   var i=0;
-  req.body.password = bcrypt.hashSync(req.body.password, null, null);
+  req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
   for(var key in req.body){
     if(key != 'id') {
       columns += key 
