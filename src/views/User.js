@@ -103,6 +103,13 @@ class User extends React.Component {
       return false
     }
   }
+  selectGender(v){
+    if(this.state.user.gender==v){
+      return true
+    }else{
+      return false
+    }
+  }
   handleChange(e,s){
     var value = e.target.value;
     this.state.user[s] = value
@@ -211,9 +218,18 @@ class User extends React.Component {
                             <Col md="6" className="form-group">
                               <label htmlFor="feInputState">Privilege</label>
                               <FormSelect id="feInputState" onChange={(e)=>this.handleChange(e,'privilege')}>
+                                <option disabled >Select privilege</option>
                                 <option selected={this.selectPrivilege('admin')} >admin</option>
                                 <option selected={this.selectPrivilege('user')}>user</option>
                                 <option selected={this.selectPrivilege('intern')}>intern</option>
+                              </FormSelect>
+                            </Col>
+                            <Col md="6" className="form-group">
+                              <label htmlFor="feInputGender">Gender</label>
+                              <FormSelect id="feInputGender" onChange={(e)=>this.handleChange(e,'gender')}>
+                                <option disabled >Select gender</option>
+                                <option selected={this.selectGender('admin')} >Male</option>
+                                <option selected={this.selectGender('user')}>Female</option>
                               </FormSelect>
                             </Col>
                             

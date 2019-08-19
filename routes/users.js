@@ -52,7 +52,7 @@ router.post("/register", function(req, res, next) {
 
 router.get('/users', isLoggedIn, function(req, res, next) {
   // GET/users/ route
-  connection.query('SELECT firstName, surname, correo, gender, privilege FROM users',function(err,rows){
+  connection.query('SELECT id, firstName, surname, correo, gender, privilege FROM users',function(err,rows){
     if(err){
      console.log(err)
      res.status(500);   
@@ -65,7 +65,7 @@ router.get('/users', isLoggedIn, function(req, res, next) {
 
 router.get('/user/:id', isLoggedIn, function(req, res, next) {
   // GET/users/ route
-  connection.query(`SELECT firstName, surname, correo, gender, privilege FROM users WHERE id = ${req.params.id}`,function(err,rows){
+  connection.query(`SELECT id, firstName, surname, correo, gender, privilege FROM users WHERE id = ${req.params.id}`,function(err,rows){
     if(err){
      console.log(err)
      res.status(500);   
