@@ -91,7 +91,8 @@ io.on('connection', function(socket){
     `,function(err,rows2){ 
       console.log(err)
       console.log(rows2)
-      io.to(findUser(data.correo)).emit('message recived', data)
+      socket.to(findUser(data.correo)).emit('message recived', data)
+      socket.emit('message recived', data)
     });
   })
 
@@ -116,7 +117,7 @@ app.use("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
-server.listen(3000, () => {
+server.listen(process.env.PORT || 3000, () => {
   console.log('server started and listening on port ' + 3000);
 }); 
 
