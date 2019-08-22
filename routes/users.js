@@ -62,7 +62,6 @@ router.get('/users', isLoggedIn, function(req, res, next) {
   });
   
 });
-
 router.get('/user/:id', isLoggedIn, function(req, res, next) {
   // GET/users/ route
   connection.query(`SELECT id, firstName, surname, correo, gender, privilege FROM users WHERE id = ${req.params.id}`,function(err,rows){
@@ -75,9 +74,20 @@ router.get('/user/:id', isLoggedIn, function(req, res, next) {
   });
   
 });
+router.get('/findUser/:data', /*isLoggedIn,*/ function(req, res, next) {
+  connection.query(`
+  SELECT users.id, users.firstName, users.surname, users.correo, profiles.grade, profiles.avatar, profiles.university
+  FROM users 
+  INNER JOIN profiles ON users.id = profiles.user_id
+  WHERE users.correo LIKE '%${req.params.data}%' OR users.firstName LIKE '%${req.params.data}%' OR users.surname LIKE '%${req.params.data}%'
+  `,function(err,rows){
+    if(err) return res.json({})
+    if(rows) return res.json(rows);              
+  });
+   
+});
 
 router.post('/user', isLoggedIn, function(req, res, next) {
-  
   var dataUpdate = '';
   var i=0;
   for(var key in req.body){

@@ -72,6 +72,7 @@
     "sass-loader": "^6.0.6",
     "shards-react": "^1.0.0",
     "shortid": "^2.2.14",
+    "socket.io": "^2.2.0",
     "style-loader": "^0.19.0",
     "styles-loader": "^1.0.0",
     "url-loader": "^0.6.2",
