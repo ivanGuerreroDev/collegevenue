@@ -117,7 +117,7 @@ app.use("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
-server.listen(process.env.PORT || 3000, () => {
+server.listen(process.env.PORT, () => {
   console.log('server started and listening on port ' + 3000);
 }); 
 
