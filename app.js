@@ -1,20 +1,17 @@
 import express from "express";
-
 import path from "path";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
-
+var cors = require('cors');
 var session  = require('express-session');
 var cookieParser = require('cookie-parser');
 var morgan = require('morgan');
 var passport = require('passport');
 var flash    = require('connect-flash');
 dotenv.config();
-
 const app = express();
 var http = require('http');
 const server = http.createServer(app);
-
 var socketIO = require('socket.io')
 const io = socketIO(server, {
   path: '/chat',
@@ -23,12 +20,12 @@ const io = socketIO(server, {
   pingTimeout: 5000,
   cookie: false
 });
-
+app.use(cors())
 require('./config/passport')(passport); // pass passport for configuration
 app.use(morgan('dev')); // log every request to the console
 app.use(cookieParser()); // read cookies (needed for auth)
 app.use(bodyParser.urlencoded({
-	extended: true
+	extended: false
 }));
 app.use(bodyParser.json());
 app.use(session({
@@ -39,11 +36,8 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
-
-
 var connection  = require('./config/db');
 app.use(express.static(__dirname + "/public"));
-
 
 
 var onlineUsers = [] 
@@ -105,6 +99,8 @@ const users = require("./routes/users");
 app.use("/api", users);
 const profile = require("./routes/profile");
 app.use("/api/profile", profile);
+const feed = require("./routes/feed");
+app.use("/api/feed", feed);
 
 var bcrypt = require('bcrypt');
 var pass = bcrypt.hashSync('rogue', 10)
@@ -117,7 +113,7 @@ app.use("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
-server.listen(process.env.PORT, () => {
+server.listen(3000, () => {
   console.log('server started and listening on port ' + 3000);
 }); 
 
