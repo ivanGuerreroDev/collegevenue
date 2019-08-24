@@ -8,6 +8,7 @@ var cookieParser = require('cookie-parser');
 var morgan = require('morgan');
 var passport = require('passport');
 var flash    = require('connect-flash');
+var port = process.env.PORT || 8080;
 dotenv.config();
 const app = express();
 var http = require('http');
@@ -113,7 +114,7 @@ app.use("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
-server.listen(3000, () => {
+server.listen(port, () => {
   console.log('server started and listening on port ' + 3000);
 }); 
 
