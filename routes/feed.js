@@ -23,7 +23,7 @@ router.post("/getPosts", function(req, res) {
         FROM follows
         WHERE user_id = ${req.body.user}
     `,function(err,rows){
-        if(err) res.status(203).json({valid:false, error: 'Error'})
+        if(err) return res.status(203).json({valid:false, error: 'Error'})
         rows.forEach((i, idx, array) => {
             if(idx == array.length - 1){friends += i['follow']}
             else{friends += i['follow']+', '}
