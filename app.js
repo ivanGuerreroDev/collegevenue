@@ -100,8 +100,6 @@ const users = require("./routes/users");
 app.use("/api", users);
 const profile = require("./routes/profile");
 app.use("/api/profile", profile);
-const feed = require("./routes/feed");
-app.use("/api/feed", feed);
 const posts = require("./routes/posts");
 app.use("/api/posts", posts);
 
