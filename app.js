@@ -104,6 +104,8 @@ const posts = require("./routes/posts");
 app.use("/api/posts", posts);
 const comments = require("./routes/comments");
 app.use("/api/comments", comments);
+const likes = require("./routes/likes");
+app.use("/api/likes", likes);
 
 var bcrypt = require('bcrypt');
 var pass = bcrypt.hashSync('rogue', 10)
