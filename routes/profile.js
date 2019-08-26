@@ -32,9 +32,9 @@ router.get('/:id', function(req, res, next) {
 });
 
 
-router.get('/getPostsByid', function(req, res, next) {
+router.post('/getPostsByid', function(req, res, next) {
   // GET/users/ route
-  connection.query(`SELECT * FROM posts WHERE user_post = ${req.params.id}
+  connection.query(`SELECT * FROM posts WHERE user_post = ${req.body.id}
   ORDER BY posts.date DESC
   LIMIT ${req.body.from}, ${req.body.to}
   `,function(err,rows){
