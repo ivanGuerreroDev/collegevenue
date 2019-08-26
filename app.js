@@ -115,7 +115,7 @@ app.use("*", (req, res) => {
 });
 
 server.listen(port, () => {
-  console.log('server started and listening on port ' + 3000);
+  console.log('server started and listening on port ' + port);
 }); 
 
 
