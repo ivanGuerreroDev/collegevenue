@@ -74,12 +74,18 @@ router.get('/user/:id', isLoggedIn, function(req, res, next) {
   });
   
 });
-router.get('/findUser/:data', /*isLoggedIn,*/ function(req, res, next) {
+router.post('/findUser/', /*isLoggedIn,*/ function(req, res, next) {
   connection.query(`
   SELECT users.id, users.firstName, users.surname, users.correo, profiles.grade, profiles.avatar, profiles.university
   FROM users 
-  INNER JOIN profiles ON users.id = profiles.user_id
-  WHERE users.correo LIKE '%${req.params.data}%' OR users.firstName LIKE '%${req.params.data}%' OR users.surname LIKE '%${req.params.data}%'
+  JOIN profiles ON users.id = profiles.user_id
+  WHERE 
+  (
+    users.correo LIKE '%${req.body.userFind}%' OR 
+    users.firstName LIKE '%${req.body.userFind}%' OR 
+    users.surname LIKE '%${req.body.userFind}%'
+  ) AND
+  users.id != ${req.body.user}
   `,function(err,rows){
     if(err) return res.json({})
     if(rows) return res.json(rows);              
