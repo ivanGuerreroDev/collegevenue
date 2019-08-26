@@ -60,7 +60,7 @@ router.post("/getPosts", function(req, res) {
 router.post('/getPostsByid', function(req, res, next) {
     // GET/users/ route
     connection.query(`SELECT * FROM posts WHERE user_post = ${req.body.user}
-    ORDER BY posts.date DESC
+    ORDER BY date DESC
     LIMIT ${req.body.from}, ${req.body.to}
     `,function(err,rows){
       if(err){
