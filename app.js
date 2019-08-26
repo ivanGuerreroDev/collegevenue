@@ -109,7 +109,7 @@ var bcrypt = require('bcrypt');
 var pass = bcrypt.hashSync('rogue', 10)
 app.get('/pass',function(req, res){
   res.send(pass)
-}) 
+});
 
 
 app.use("*", (req, res) => {
