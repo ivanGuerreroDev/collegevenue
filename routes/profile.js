@@ -31,23 +31,6 @@ router.get('/:id', function(req, res, next) {
   
 });
 
-
-router.post('/getPostsByid', function(req, res, next) {
-  // GET/users/ route
-  connection.query(`SELECT * FROM posts WHERE user_post = ${req.body.id}
-  ORDER BY posts.date DESC
-  LIMIT ${req.body.from}, ${req.body.to}
-  `,function(err,rows){
-    if(err){
-      return res.status(203).json({valid:false, error: 'Error'})   
-    }else{
-      console.log(rows);
-      return res.json({valid:true, result: rows});
-    }                   
-  });
-});
-
-
 router.post('/upload', (req, res) => {
   upload(req, res, function (err) {
       console.log(req.file)
