@@ -30,4 +30,19 @@ router.post("/createLike", function(req, res){
     })
 })
 
+router.post('/deleteLike', function(req, res, next) {
+    // GET/users/ route
+    connection.query(`DELETE FROM likes 
+    id_user = ${req.body.user} &&
+    id_post = ${req.body.post}
+    `, function(err,rows){
+      if(err){
+        return res.status(203).json({valid:false, error: 'Error'})   
+      }else{
+        console.log(rows);
+        return res.json({valid:true, result: rows});
+      }                   
+    });
+  });
+
 module.exports = router;
