@@ -99,9 +99,6 @@ router.post('/deletePost', function(req, res, next) {
     });
   });
 
-
-
-
 const Storage = multer.diskStorage({
     destination(req, file, callback) {
       callback(null, './public/uploads')

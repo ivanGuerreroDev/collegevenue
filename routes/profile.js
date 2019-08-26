@@ -46,8 +46,6 @@ router.post('/upload', (req, res) => {
 
 })
 
-
-
 module.exports = router;
 
 function isLoggedIn(req, res, next) {
