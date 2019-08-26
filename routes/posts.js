@@ -76,7 +76,7 @@ router.post('/updatePost', function(req, res, next) {
     // GET/users/ route
     connection.query(`UPDATE posts 
     SET text = ${req.body.text}
-    WHERE user_post = ${req.body.user}`, function(err,rows){
+    WHERE id = ${req.body.post} && user_post = ${req.body.user}`, function(err,rows){
       if(err){
         return res.status(203).json({valid:false, error: 'Error'})   
       }else{
@@ -89,7 +89,7 @@ router.post('/updatePost', function(req, res, next) {
 router.post('/deletePost', function(req, res, next) {
     // GET/users/ route
     connection.query(`DELETE FROM posts 
-    WHERE user_post = ${req.body.user}`, function(err,rows){
+    WHERE id = ${req.body.post} && user_post = ${req.body.user}`, function(err,rows){
       if(err){
         return res.status(203).json({valid:false, error: 'Error'})   
       }else{

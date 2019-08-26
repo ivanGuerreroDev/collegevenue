@@ -104,12 +104,16 @@ const posts = require("./routes/posts");
 app.use("/api/posts", posts);
 const comments = require("./routes/comments");
 app.use("/api/comments", comments);
+const likes = require("./routes/likes");
+app.use("/api/likes", likes);
+const shares = require("./routes/shares");
+app.use("/api/shares", shares);
 
 var bcrypt = require('bcrypt');
 var pass = bcrypt.hashSync('rogue', 10)
 app.get('/pass',function(req, res){
   res.send(pass)
-}) 
+});
 
 
 app.use("*", (req, res) => {
