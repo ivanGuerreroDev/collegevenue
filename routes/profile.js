@@ -28,7 +28,27 @@ router.get('/:id', function(req, res, next) {
         return res.json({valid:true, profile: rows[0]}); 
     }                   
   });
-  
+});
+router.post('/:id', function(req, res, next) {
+  var values = '';
+  let i = 0;
+  for(var key in req.body){
+      values += key+" = '"+req.body[key]+"'";
+      if(i != Object.keys(req.body).length-1){values += ', ';}
+      i++
+  };
+  connection.query(`
+    UPDATE profiles
+    SET ${values}
+    WHERE user_id = ${req.params.id}`,function(err,rows){
+    if(err){
+     console.log(err)
+     res.status(500);   
+    }else{
+        console.log(rows[0])
+        return res.json({valid:true, profile: rows[0]}); 
+    }                   
+  });
 });
 
 router.post('/upload', (req, res) => {
