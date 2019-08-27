@@ -68,7 +68,9 @@ router.post('/deletefollow', function(req, res, next) {
     INNER JOIN follows ON users.id = follows.follow AND follows.user_id IN 
       ( SELECT follows.follow FROM follows WHERE follows.user_id = ${req.body.user} ) 
       AND follows.follow NOT IN 
-        ( SELECT follows.follow FROM follows WHERE follows.user_id = ${req.body.user}) INNER JOIN profiles ON users.id = profiles.user_id
+        ( SELECT follows.follow FROM follows WHERE follows.user_id = ${req.body.user}) INNER JOIN profiles ON users.id = profiles.user_id 
+        ORDER BY newid()
+        LIMIT ${req.body.from},${req.body.to}
     `, function(err,rows){
       if(err){
         return res.status(203).json({valid:false, error: 'Error'})   
