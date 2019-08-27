@@ -54,7 +54,6 @@ router.post('/:id', function(req, res, next) {
 
 router.post('/upload', (req, res) => {
   upload(req, res, function (err) {
-      console.log(req.file)
       if (err instanceof multer.MulterError) {
           console.log(err)
           return res.status(500).json(err)
