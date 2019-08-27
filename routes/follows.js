@@ -6,7 +6,7 @@ var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
 
-router.post("/createLike", function(req, res){
+router.post("/createfollow", function(req, res){
 
     var values = '', indexs = '';
     let i = 0;
@@ -18,7 +18,7 @@ router.post("/createLike", function(req, res){
     };
     
     connection.query(`
-        INSERT INTO likes
+        INSERT INTO follows
         (${indexs})
         VALUES (${values})  
     `,function(err,rows){
@@ -30,12 +30,12 @@ router.post("/createLike", function(req, res){
     })
 })
 
-router.post('/deleteLike', function(req, res, next) {
+router.post('/deletefollow', function(req, res, next) {
     // GET/users/ route
-    connection.query(`DELETE FROM likes
+    connection.query(`DELETE FROM follows
     WHERE 
     id_user = ${req.body.user} &&
-    id_post = ${req.body.post}
+    follow = ${req.body.follow}
     `, function(err,rows){
       if(err){
         return res.status(203).json({valid:false, error: 'Error'})   
