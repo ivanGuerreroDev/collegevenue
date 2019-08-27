@@ -32,7 +32,12 @@ router.post("/createComment", function(req, res){
 
 router.post('/getCommentsByid', function(req, res, next) {
     // GET/users/ route
-    connection.query(`SELECT * FROM comments WHERE post_id = ${req.body.post}
+    connection.query(`
+    SELECT comments.user_id, comments.post_id, comments.comment, comments.date, users.firstName, users.surname, profiles.avatar
+    FROM comments 
+    JOIN users ON comments.user_id = users.id
+    JOIN profiles ON comments.user_id = profiles.user_id
+    WHERE comments.post_id = ${req.body.post}
     ORDER BY comments.date DESC
     `,function(err,rows){
       if(err){
