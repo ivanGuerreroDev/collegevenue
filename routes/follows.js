@@ -30,6 +30,21 @@ router.post("/createfollow", function(req, res){
     })
 })
 
+router.post('/getfollowersByID', function(req, res, next) {
+    // GET/users/ route
+    connection.query(`SELECT * FROM follows
+    WHERE 
+    id_user = ${req.body.user} 
+    `, function(err,rows){
+      if(err){
+        return res.status(203).json({valid:false, error: 'Error'})   
+      }else{
+        console.log(rows);
+        return res.json({valid:true, result: rows});
+      }                   
+    });
+  });
+
 router.post('/deletefollow', function(req, res, next) {
     // GET/users/ route
     connection.query(`DELETE FROM follows
