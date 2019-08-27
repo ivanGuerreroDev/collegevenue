@@ -61,4 +61,24 @@ router.post('/deletefollow', function(req, res, next) {
     });
   });
 
+  router.post('/mightKnow', function(req, res, next) {
+    // GET/users/ route
+    connection.query(`SELECT users.id, profiles.id, users.firstName, users.surname, users.correo, profiles.avatar 
+    FROM users 
+    INNER JOIN follows ON users.id = follows.follow AND follows.user_id IN 
+      ( SELECT follows.follow FROM follows WHERE follows.user_id = ${req.body.user} ) 
+      AND follows.follow NOT IN 
+        ( SELECT follows.follow FROM follows WHERE follows.user_id = ${req.body.user}) INNER JOIN profiles ON users.id = profiles.user_id 
+        ORDER BY newid()
+        LIMIT ${req.body.from},${req.body.to}
+    `, function(err,rows){
+      if(err){
+        return res.status(203).json({valid:false, error: 'Error'})   
+      }else{
+        console.log(rows);
+        return res.json({valid:true, result: rows});
+      }                   
+    });
+  });
+
 module.exports = router;
