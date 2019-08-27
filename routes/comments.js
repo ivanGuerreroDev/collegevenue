@@ -44,7 +44,6 @@ router.post('/getCommentsByid', function(req, res, next) {
       if(err){
         return res.status(203).json({valid:false, error: 'Error'})   
       }else{
-        console.log(rows);
         return res.json({valid:true, result: rows});
       }                   
     });
