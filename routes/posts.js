@@ -29,33 +29,53 @@ router.post("/uploadPost", function(req, res){
 })
 
 router.post("/getPosts", function(req, res) {
-    var friends = ''; var me;
+  var friends = ''; var me;
+  var posts = {
+    normal: [],
+    shares: []
+  }
+  connection.query(`
+      SELECT follow
+      FROM follows
+      WHERE user_id = ${req.body.user}
+  `,function(err,rows){
+    if(err) return res.status(203).json({valid:false, error: 'Error'})
+    rows.forEach((i, idx, array) => {
+        if(idx == array.length - 1){friends += i['follow']}
+        else{friends += i['follow']+', '}
+    });
+    if(friends===''){me=req.body.user}else{me=', '+req.body.user}
     connection.query(`
-        SELECT follow
-        FROM follows
-        WHERE user_id = ${req.body.user}
+        SELECT posts.id, posts.user_post, posts.date, posts.likes, posts.comments, posts.shares, posts.text, posts.media, users.firstName, users.surname, profiles.avatar 
+        FROM posts
+        JOIN users ON posts.user_post = users.id
+        JOIN profiles ON posts.user_post = profiles.user_id
+        WHERE posts.user_post IN (${friends} ${me}) 
+        ORDER BY posts.date DESC
+        LIMIT ${req.body.from}, ${req.body.to}
     `,function(err,rows){
-        if(err) return res.status(203).json({valid:false, error: 'Error'})
-        rows.forEach((i, idx, array) => {
-            if(idx == array.length - 1){friends += i['follow']}
-            else{friends += i['follow']+', '}
-        });
-        if(friends===''){me=req.body.user}else{me=', '+req.body.user}
-        connection.query(`
-            SELECT posts.id, posts.user_post, posts.date, posts.likes, posts.comments, posts.shares, posts.text, posts.media, users.firstName, users.surname, profiles.avatar 
-            FROM posts
-            JOIN users ON posts.user_post = users.id
-            JOIN profiles ON posts.user_post = profiles.user_id
-            WHERE posts.user_post IN (${friends} ${me}) 
-            ORDER BY posts.date DESC
-            LIMIT ${req.body.from}, ${req.body.to}
-        `,function(err,rows){
-            console.log(err)
-            if(err) {return res.status(203).json({valid:false, error: 'Error'})}
-            return res.json({valid:true, result: rows})
-        })
+      if(err) {return res.status(203).json({valid:false, error: 'Error'})}
+      posts.normal = rows
+      connection.query(`
+        SELECT 
+        posts.id, shares.user_id, posts.user_post, posts.date, posts.likes, posts.comments, posts.shares, posts.text, posts.media, 
+        users.firstName, users.surname, profiles.avatar, uShare.firstName as shareFirstname, uShare.surname as shareSurname
+        FROM posts
+        JOIN shares ON posts.id = shares.post_id
+        JOIN users ON users.id = shares.user_id
+        JOIN profiles ON profiles.user_id = posts.user_post
+        JOIN users as uShare ON posts.user_post = uShare.id
+        WHERE posts.user_post IN (${friends} ${me}) 
+        ORDER BY posts.date DESC
+        LIMIT ${req.body.from}, ${req.body.to}
+      `,function(err,rows){
+        if(err) {return res.status(203).json({valid:false, error: 'Error'})}
+        posts.shares = rows
+        return res.json({valid:true, result: posts})
+      })
     })
-});
+  });
+})
 
 router.post('/getPostsByid', function(req, res, next) {
     // GET/users/ route
