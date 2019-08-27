@@ -39,6 +39,7 @@ router.post('/getCommentsByid', function(req, res, next) {
     JOIN profiles ON comments.user_id = profiles.user_id
     WHERE comments.post_id = ${req.body.post}
     ORDER BY comments.date DESC
+    LIMIT ${req.body.from}, ${req.body.to} 
     `,function(err,rows){
       if(err){
         return res.status(203).json({valid:false, error: 'Error'})   
