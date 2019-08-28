@@ -41,26 +41,13 @@ var connection  = require('./config/db');
 app.use(express.static(__dirname + "/public"));
 
 
-var onlineUsers = [] 
-function findUser(user){
-  var result;
-  for( var i=0; i < onlineUsers.length; i++ ) {
-    if( onlineUsers[i]['id'] === user ) {result = onlineUsers[i]['socketID']}
-  }
-  return result
-}
-function removeUser(id){
-  for( var i = 0; i < onlineUsers.length; i++){ 
-    
-    if ( onlineUsers[i]['id'] === id) {
-      onlineUsers.splice(i, 1); 
-    }
- }
-}
+var onlineUsers = {}
+
 io.on('connection', function(socket){
-  onlineUsers.push({id: socket.handshake.query.id, socketID: socket.id})
+  onlineUsers[socket.handshake.query.id] = socket.id;
+  console.log(onlineUsers);
   socket.on('update messages', function (data) {
-    console.log(data.timestamp)
+   // console.log(data.timestamp)
     connection.query(`
     SELECT messages.id, messages.to_user, messages.from_user, messages.message, messages.timestamp, users.firstName, users.surname, users.correo, profiles.avatar
     FROM ((messages
@@ -70,8 +57,50 @@ io.on('connection', function(socket){
     (messages.to_user = ${data.id} OR messages.from_user = ${data.id}) AND messages.timestamp > ${data.timestamp}
     `,function(err,rows){
       if(rows){
-        var socketID = findUser(data.correo);
+        var socketID = onlineUsers[data.correo];
         io.to(socketID).emit('MESSAGES_SEND', rows[0])
+      }
+    });
+  })
+
+  socket.on('connected', function(data){
+   // console.log("ENTRE");
+   // console.log(data.id);
+    connection.query(`
+    SELECT correo 
+    FROM users 
+    WHERE id IN ( SELECT follows.follow 
+                  FROM follows 
+                  WHERE follows.user_id IN (SELECT users.id 
+                                            FROM users 
+                                            WHERE correo = '${data.id}')
+                )
+    `,function(err,rows){
+      if(err){
+        console.log('hubo error');
+        socket.to(onlineUsers[data.id]).emit('connectedFriends', {sucess:false, friends:null});
+      }else{
+        if(rows){
+          
+          var connectedFriends = [];
+          var n = rows.length;
+          //console.log(findUser(connectedFriends));
+
+          for(var i = 0; i < n; i++){
+            if(onlineUsers[rows[i].correo]){
+              connectedFriends.push(rows[i].correo);
+            }else{
+              continue;
+            }
+          }
+          
+          var to = onlineUsers[data.correo];
+          //console.log(findUser(data.id));
+          socket.to(to).emit('connectedFriends', {sucess:true, friends:connectedFriends})
+
+        }else{
+          socket.to(onlineUsers[data.id]).emit('connectedFriends', {sucess:true, friends:null})
+        }
       }
     });
   })
@@ -86,15 +115,31 @@ io.on('connection', function(socket){
     `,function(err,rows2){ 
       console.log(err)
       console.log(rows2)
-      socket.to(findUser(data.correo)).emit('message recived', data)
-      socket.emit('message recived', data)
+      socket.to(onlineUsers[data.correo]).emit('message recived', data)
+      //socket.emit('message recived', data)
     });
   })
 
   socket.on('disconnect', function(socket){
-    removeUser(socket.username);
+    //console.log(socket+ ':me desconecte');
+    //console.log(onlineUsers[socket.id]);
+    
+    var arr = Object.keys(onlineUsers);
+    //console.log(arr);
+    var found = true;
+    var i = 1;
+    while(found){
+      //console.log('hi');
+      if(onlineUsers[arr[i]] == socket.id){
+        delete onlineUsers[arr[i]];
+        found = false;
+      }else{i=i+1;}
+    }
+    //console.log(onlineUsers[socket.id]);
   });
 });
+
+
 
 const users = require("./routes/users");
 app.use("/api", users);
