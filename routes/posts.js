@@ -108,11 +108,10 @@ router.post('/updatePost', function(req, res, next) {
 router.post('/deletePost', function(req, res, next) {
     // GET/users/ route
     connection.query(`DELETE FROM posts 
-    WHERE id = ${req.body.post} && user_post = ${req.body.user}`, function(err,rows){
+    WHERE id = ${req.body.post}`, function(err,rows){
       if(err){
         return res.status(203).json({valid:false, error: 'Error'})   
       }else{
-        console.log(rows);
         return res.json({valid:true, result: rows});
       }                   
     });
