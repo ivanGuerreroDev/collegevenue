@@ -46,7 +46,9 @@ router.post("/getPosts", function(req, res) {
     });
     if(friends===''){me=req.body.user}else{me=', '+req.body.user}
     connection.query(`
-        SELECT posts.id, posts.user_post, posts.date, posts.likes, posts.comments, posts.shares, posts.text, posts.media, users.firstName, users.surname, profiles.avatar 
+        SELECT posts.id, posts.user_post, posts.date, posts.likes, posts.comments, posts.shares, posts.text, posts.media, users.firstName, users.surname, profiles.avatar,
+        IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
+        IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS shared
         FROM posts
         JOIN users ON posts.user_post = users.id
         JOIN profiles ON posts.user_post = profiles.user_id
@@ -54,12 +56,14 @@ router.post("/getPosts", function(req, res) {
         ORDER BY posts.date DESC
         LIMIT ${req.body.from}, ${req.body.to}
     `,function(err,rows){
-      if(err) {return res.status(203).json({valid:false, error: 'Error'})}
+      if(err) {console.log(err); return res.status(203).json({valid:false, error: 'Error'})}
       posts.normal = rows
       connection.query(`
         SELECT 
         posts.id, shares.user_id, posts.user_post, posts.date, posts.likes, posts.comments, posts.shares, posts.text, posts.media, 
-        users.firstName, users.surname, profiles.avatar, uShare.firstName as shareFirstname, uShare.surname as shareSurname
+        users.firstName, users.surname, profiles.avatar, uShare.firstName as shareFirstname, uShare.surname as shareSurname,
+        IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
+        IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS shared
         FROM posts
         JOIN shares ON posts.id = shares.post_id
         JOIN users ON users.id = shares.user_id
@@ -69,7 +73,7 @@ router.post("/getPosts", function(req, res) {
         ORDER BY posts.date DESC
         LIMIT ${req.body.from}, ${req.body.to}
       `,function(err,rows){
-        if(err) {return res.status(203).json({valid:false, error: 'Error'})}
+        if(err) {console.log(err);return res.status(203).json({valid:false, error: 'Error'})}
         posts.shares = rows
         return res.json({valid:true, result: posts})
       })
@@ -79,7 +83,12 @@ router.post("/getPosts", function(req, res) {
 
 router.post('/getPostsByid', function(req, res, next) {
     // GET/users/ route
-    connection.query(`SELECT * FROM posts WHERE user_post = ${req.body.user}
+    connection.query(`
+    SELECT posts.id, posts.user_post, posts.date, posts.comments,posts.shares,posts.likes,posts.text,posts.media, 
+    IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
+    IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS shared
+    FROM posts
+    WHERE user_post = ${req.body.user}
     ORDER BY date DESC
     LIMIT ${req.body.from}, ${req.body.to}
     `,function(err,rows){
@@ -107,10 +116,8 @@ router.post('/updatePost', function(req, res, next) {
 
 router.post('/deletePost', function(req, res, next) {
     // GET/users/ route
-    connection.query(`DELETE FROM posts 
-    WHERE id = ${req.body.post}`, function(err,rows){
-      if(err){
-        return res.status(203).json({valid:false, error: 'Error'})   
+    connection.query(`DELETE FROM posts WHERE id = ${req.body.post}`, function(err,rows){
+      if(err){ return res.status(203).json({valid:false, error: 'Error'})   
       }else{
         return res.json({valid:true, result: rows});
       }                   

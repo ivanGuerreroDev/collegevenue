@@ -11,7 +11,7 @@ router.post("/createComment", function(req, res){
     var values = '', indexs = '';
     let i = 0;
     for(var key in req.body){
-        if(key == 'text' /*|| key == 'media'*/){values += "'"+req.body[key]+"'"; indexs+= key;}
+        if(key == 'comment' /*|| key == 'media'*/){values += "'"+req.body[key]+"'"; indexs+= key;}
         else{values += req.body[key]; indexs+= key;}
         if(i != Object.keys(req.body).length-1){values += ', '; indexs+= ', ';}
         i++

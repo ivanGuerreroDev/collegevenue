@@ -24,29 +24,23 @@ router.get('/:id', function(req, res, next) {
      console.log(err)
      res.status(500);   
     }else{
-        console.log(rows[0])
         return res.json({valid:true, profile: rows[0]}); 
     }                   
   });
 });
 
-router.post('/:id', function(req, res, next) {
-  var values = '';
-  let i = 0;
-  for(var key in req.body){
-      values += key+" = '"+req.body[key]+"'";
-      if(i != Object.keys(req.body).length-1){values += ', ';}
-      i++
-  };
+router.post('/getProfileById', function(req, res, next) {
   connection.query(`
-    UPDATE profiles
-    SET ${values}
-    WHERE user_id = ${req.params.id}`,function(err,rows){
+    SELECT users.firstName, users.surname, users.correo, users.id, profiles.avatar, profiles.university, profiles.grade, profiles.follows, profiles.bio 
+    FROM users 
+    JOIN profiles ON profiles.user_id = users.id
+    WHERE users.id = ${req.body.user}
+  `,function(err,rows){
     if(err){
      console.log(err)
      res.status(500);   
     }else{
-        console.log(rows[0])
+        console.log(rows)
         return res.json({valid:true, profile: rows[0]}); 
     }                   
   });
@@ -63,8 +57,29 @@ router.post('/upload', (req, res) => {
       }
       return res.status(200).json({valid:true, result: req.file})
   })
-
 })
+router.post('/:id', function(req, res, next) {
+  var values = '';
+  let i = 0;
+  for(var key in req.body){
+      values += key+" = '"+req.body[key]+"'";
+      if(i != Object.keys(req.body).length-1){values += ', ';}
+      i++
+  };
+  connection.query(`
+    UPDATE profiles
+    SET ${values}
+    WHERE user_id = ${req.params.id}`,function(err,rows){
+    if(err){
+     console.log(err)
+     res.status(500);   
+    }else{
+        return res.json({valid:true}); 
+    }                   
+  });
+});
+
+
 
 module.exports = router;
 

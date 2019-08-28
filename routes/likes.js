@@ -16,7 +16,6 @@ router.post("/createLike", function(req, res){
         if(i != Object.keys(req.body).length-1){values += ', '; indexs+= ', ';}
         i++
     };
-    
     connection.query(`
         INSERT INTO likes
         (${indexs})
@@ -34,8 +33,8 @@ router.post('/deleteLike', function(req, res, next) {
     // GET/users/ route
     connection.query(`DELETE FROM likes
     WHERE 
-    id_user = ${req.body.user} &&
-    id_post = ${req.body.post}
+    user_id = ${req.body.user} &&
+    post_id = ${req.body.post}
     `, function(err,rows){
       if(err){
         return res.status(203).json({valid:false, error: 'Error'})   
@@ -45,5 +44,6 @@ router.post('/deleteLike', function(req, res, next) {
       }                   
     });
   });
+
 
 module.exports = router;

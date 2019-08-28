@@ -32,7 +32,7 @@ router.post("/createShare", function(req, res){
 
 router.post('/deleteShare', function(req, res, next) {
     // GET/users/ route
-    connection.query(`DELETE FROM Share
+    connection.query(`DELETE FROM shares
     WHERE  
     user_id = ${req.body.user} &&
     post_id = ${req.body.post}
@@ -40,8 +40,7 @@ router.post('/deleteShare', function(req, res, next) {
       if(err){
         return res.status(203).json({valid:false, error: 'Error'})   
       }else{
-        console.log(rows);
-        return res.json({valid:true, result: rows});
+        return res.json({valid:true});
       }                   
     });
   });
