@@ -42,9 +42,11 @@ app.use(express.static(__dirname + "/public"));
 
 
 var onlineUsers = {}
+var resOnlineUsers = {}
 
 io.on('connection', function(socket){
   onlineUsers[socket.handshake.query.id] = socket.id;
+  resOnlineUsers[socket.id] = socket.handshake.query.id;
   console.log(onlineUsers);
   socket.on('update messages', function (data) {
    // console.log(data.timestamp)
@@ -123,18 +125,8 @@ io.on('connection', function(socket){
   socket.on('disconnect', function(socket){
     //console.log(socket+ ':me desconecte');
     //console.log(onlineUsers[socket.id]);
-    
-    var arr = Object.keys(onlineUsers);
-    //console.log(arr);
-    var found = true;
-    var i = 1;
-    while(found){
-      //console.log('hi');
-      if(onlineUsers[arr[i]] == socket.id){
-        delete onlineUsers[arr[i]];
-        found = false;
-      }else{i=i+1;}
-    }
+    delete onlineUsers[resOnlineUsers[socket.id]];
+    delete resOnlineUsers[socket.id];
     //console.log(onlineUsers[socket.id]);
   });
 });
