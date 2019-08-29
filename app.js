@@ -56,12 +56,18 @@ io.on('connection', function(socket){
     INNER JOIN users ON messages.from_user = users.id)
     INNER JOIN profiles ON messages.from_user = profiles.user_id)
     WHERE 
-    (messages.to_user = ${data.id} OR messages.from_user = ${data.id}) AND messages.timestamp > ${data.timestamp}
+    (messages.to_user = ${data.id} OR messages.from_user = ${data.id}) AND messages.timestamp <= ${data.timestamp}
+    LIMIT ${data.from},${data.to}
     `,function(err,rows){
+      if(err){
+        console.log('error con el query');
+        console.log(err);
+      }else{
       if(rows){
         var socketID = onlineUsers[data.correo];
-        io.to(socketID).emit('MESSAGES_SEND', rows[0])
+        io.to(socketID).emit('MESSAGES_SEND', rows)
       }
+    }
     });
   })
 
