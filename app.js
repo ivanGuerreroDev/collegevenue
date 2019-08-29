@@ -121,7 +121,7 @@ io.on('connection', function(socket){
           console.log('error en el envio del mensaje');
         }else{
           console.log('enviando mensaje a: '+data.correo)
-          socket.to(onlineUsers[data.from_user_correo]).emit('message recived',{sucess:false, data: null});
+          socket.to(onlineUsers[data.from_user_correo]).emit('message recived',{sucess:true, sender: data.id, data: data.message});
           socket.to(onlineUsers[data.correo]).emit('message recived', {sucess:true, sender: data.id ,data: data.message});
         }
       //socket.emit('message recived', data)
