@@ -119,10 +119,10 @@ io.on('connection', function(socket){
         if(err){
           console.log(err);
           console.log('error en el envio del mensaje');
-          socket.to(onlineUsers[data.id]).emit('message recived',{sucess:false, data: null});
         }else{
-          console.log('enviando mensaje a: '+data.destiny)
-          socket.to(onlineUsers[data.destiny]).emit('message recived', {sucess:true, sender: data.id ,data: data.message});
+          console.log('enviando mensaje a: '+data.correo)
+          socket.to(onlineUsers[data.from_user_correo]).emit('message recived',{sucess:false, data: null});
+          socket.to(onlineUsers[data.correo]).emit('message recived', {sucess:true, sender: data.id ,data: data.message});
         }
       //socket.emit('message recived', data)
     });
