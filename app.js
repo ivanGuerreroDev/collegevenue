@@ -114,7 +114,7 @@ io.on('connection', function(socket){
     INSERT INTO messages 
     (to_user, from_user, message, timestamp)
     VALUES
-    ( ${data.to_user}, ${data.from_user}, '${data.message}', ${data.timestamp})
+    ( ${data.id}, ${data.from_user}, '${data.message}', ${data.timestamp})
     `,function(err,rows2){ 
         if(err){
           console.log(err);
