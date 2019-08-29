@@ -96,9 +96,10 @@ io.on('connection', function(socket){
             }
           }
           
-          var to = onlineUsers[data.correo];
+          
           //console.log(findUser(data.id));
-          socket.to(to).emit('connectedFriends', {sucess:true, friends:connectedFriends})
+          socket.to(onlineUsers[data.id]).emit('connectedFriends', {sucess:true, friends:connectedFriends});
+          console.log('enviando online');
 
         }else{
           socket.to(onlineUsers[data.id]).emit('connectedFriends', {sucess:true, friends:null})
@@ -113,11 +114,16 @@ io.on('connection', function(socket){
     INSERT INTO messages 
     (to_user, from_user, message, timestamp)
     VALUES
-    ( ${data.id}, ${data.from_user}, '${data.message}', ${data.timestamp})
+    ( ${data.to_user}, ${data.from_user}, '${data.message}', ${data.timestamp})
     `,function(err,rows2){ 
-      console.log(err)
-      console.log(rows2)
-      socket.to(onlineUsers[data.correo]).emit('message recived', data)
+        if(err){
+          console.log(err);
+          console.log('error en el envio del mensaje');
+          socket.to(onlineUsers[data.id]).emit('message recived',{sucess:false, data: null});
+        }else{
+          console.log('enviando mensaje a: '+data.destiny)
+          socket.to(onlineUsers[data.destiny]).emit('message recived', {sucess:true, sender: data.id ,data: data.message});
+        }
       //socket.emit('message recived', data)
     });
   })
