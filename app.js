@@ -49,7 +49,7 @@ io.on('connection', function(socket){
   resOnlineUsers[socket.id] = socket.handshake.query.id;
   console.log(onlineUsers);
   socket.on('update messages', function (data) {
-   // console.log(data.timestamp)
+    console.log(data.timestamp)
     connection.query(`
     SELECT messages.id, messages.to_user, messages.from_user, messages.message, messages.timestamp, users.firstName, users.surname, users.correo, profiles.avatar
     FROM ((messages
@@ -69,15 +69,15 @@ io.on('connection', function(socket){
    // console.log("ENTRE");
    // console.log(data.id);
     connection.query(`
-    SELECT correo 
-    FROM users 
-    WHERE id IN ( SELECT follows.follow 
-                  FROM follows 
-                  WHERE follows.user_id IN (SELECT users.id 
-                                            FROM users 
-                                            WHERE correo = '${data.id}')
+      SELECT correo 
+      FROM users 
+      WHERE id IN ( SELECT follows.follow 
+                    FROM follows 
+                    WHERE follows.user_id IN (SELECT users.id 
+                                              FROM users 
+                                              WHERE correo = '${data.id}')
                 )
-    `,function(err,rows){
+      `,function(err,rows){
       if(err){
         console.log('hubo error');
         socket.to(onlineUsers[data.id]).emit('connectedFriends', {sucess:false, friends:null});
@@ -106,6 +106,14 @@ io.on('connection', function(socket){
         }
       }
     });
+    /*
+    connection.query(`SELECT * FROM forSendMessages
+    WHERE to_user = ${socket.handshake.query.user}`,function(err,rows){
+      if(err){console.log(err)}else{
+        socket.emit()
+      }
+    })
+    */
   })
 
   socket.on('new message', function(data){
@@ -118,11 +126,9 @@ io.on('connection', function(socket){
     `,function(err,rows2){ 
         if(err){
           console.log(err);
-          console.log('error en el envio del mensaje');
         }else{
-          console.log('enviando mensaje a: '+data.correo)
-          socket.to(onlineUsers[data.from_user_correo]).emit('message recived',{sucess:true, sender: data.id, data: data.message});
-          socket.to(onlineUsers[data.correo]).emit('message recived', {sucess:true, sender: data.id ,data: data.message});
+          io.to(onlineUsers[data.from_user_correo]).emit('message recived',{sucess:true, sender: data.from_user, timestamp: data.timestamp});
+          io.to(onlineUsers[data.correo]).emit('message recived', {sucess:true, sender: data.id , timestamp: data.timestamp});
         }
       //socket.emit('message recived', data)
     });
