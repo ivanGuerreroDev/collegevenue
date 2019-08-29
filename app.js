@@ -57,6 +57,7 @@ io.on('connection', function(socket){
     INNER JOIN profiles ON messages.from_user = profiles.user_id)
     WHERE 
     (messages.to_user = ${data.id} OR messages.from_user = ${data.id}) AND messages.timestamp <= ${data.timestamp}
+    ORDER BY timestamp DESC 
     LIMIT ${data.from},${data.to}
     `,function(err,rows){
       if(err){
