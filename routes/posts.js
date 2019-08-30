@@ -100,7 +100,7 @@ router.post('/getPostsByid', function(req, res, next) {
     });
   });
 
-router.post('/getTrendingPostsByLikes', function(req, res, next) {
+router.post('/getTrendingPosts', function(req, res, next) {
     // GET/users/ route
     connection.query(`
     SELECT posts.id, posts.date, posts.comments, posts.shares, posts.likes, posts.text, posts.media, users.id, users.firstName, users.surname 
