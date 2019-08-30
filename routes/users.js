@@ -25,9 +25,8 @@ router.post("/login", passport.authenticate("local"), function(req, res) {
 });
 
 router.post("/register", function(req, res, next) {
-  if(!req.body.firstname || !req.body.surname || !req.body.correo || !req.body.password || !req.body.gender) {
-    console.log(req.body);
-    res.json({valid: false, error: 'Please fill all fields!'})
+  if(!req.body.firstname || !req.body.surname || !req.body.correo || !req.body.password) {
+    return res.json({valid: false, error: 'Please fill all fields!'})
   }
   var columns = '', values = '';
   req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
@@ -41,11 +40,12 @@ router.post("/register", function(req, res, next) {
   values+="'user'";
   connection.query(`INSERT INTO users (${columns}) VALUES (${values})`,function(err,rows){
     if(err){
-      if(err.code == 'ER_DUP_ENTRY') {res.json({valid: false, error: 'Username or Email in use!'}); }
-      else{res.status(500);} 
+      if(err.code == 'ER_DUP_ENTRY') {return  res.json({valid: false, error: 'Username or Email in use!'}); }
+      else{return  res.status(500);} 
     }else{
-      return res.json({valid:true, message: 'Resgistered'}); 
-    }                  
+      return res.json({valid:true, message: 'Resgistered'});
+    }
+                    
   });
 });
 

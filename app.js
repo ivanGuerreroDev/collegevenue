@@ -92,8 +92,6 @@ io.on('connection', function(socket){
     }
     });
   })
-
-
   socket.on('connected', function(data){
    // console.log("ENTRE");
    // console.log(data.id);
@@ -144,7 +142,6 @@ io.on('connection', function(socket){
     })
     */
   })
-
   socket.on('new message', function(data){
     connection.query(`
     INSERT INTO messages 
@@ -158,7 +155,7 @@ io.on('connection', function(socket){
           connection.query(`
           SELECT *
           FROM chats 
-          WHERE user_1 = ${data.from_user} OR user_2 = ${data.to_user} OR user_1 = ${data.to_user} OR user_2 = ${data.from_user}
+          WHERE (user_1 = ${data.from_user} OR user_2 = ${data.from_user}) AND (user_1 = ${data.to_user} OR user_2 = ${data.to_user})
           `,function(err,rows2){
             if(err){console.log(err)}
             else{
@@ -181,7 +178,6 @@ io.on('connection', function(socket){
     
     
   })
-
   socket.on('disconnect', function(socket){
     //console.log(socket+ ':me desconecte');
     //console.log(onlineUsers[socket.id]);
@@ -205,6 +201,8 @@ const likes = require("./routes/likes");
 app.use("/api/likes", likes);
 const shares = require("./routes/shares");
 app.use("/api/shares", shares);
+const follows = require("./routes/follows");
+app.use("/api/follows", follows);
 
 var bcrypt = require('bcrypt');
 var pass = bcrypt.hashSync('rogue', 10)

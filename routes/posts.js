@@ -46,7 +46,7 @@ router.post("/getPosts", function(req, res) {
     });
     if(friends===''){me=req.body.user}else{me=', '+req.body.user}
     connection.query(`
-        SELECT posts.id, posts.user_post, posts.date, posts.likes, posts.comments, posts.shares, posts.text, posts.media, users.firstName, users.surname, profiles.avatar,
+        SELECT posts.id, posts.user_post, posts.date, posts.likes, posts.comments, posts.shares, posts.text, posts.media, users.firstName, users.surname, users.correo, profiles.avatar,
         IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
         IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS shared
         FROM posts

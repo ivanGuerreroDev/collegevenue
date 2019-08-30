@@ -31,7 +31,7 @@ router.get('/:id', function(req, res, next) {
 
 router.post('/getProfileById', function(req, res, next) {
   connection.query(`
-    SELECT users.firstName, users.surname, users.correo, users.id, profiles.avatar, profiles.university, profiles.grade, profiles.follows, profiles.bio 
+    SELECT users.firstName, users.surname, users.correo, users.id, profiles.avatar, profiles.university, profiles.grade, profiles.follows, profiles.bio, profiles.facebook, profiles.instagram, profiles.twitter, profiles.snapchat 
     FROM users 
     JOIN profiles ON profiles.user_id = users.id
     WHERE users.id = ${req.body.user}
@@ -44,6 +44,45 @@ router.post('/getProfileById', function(req, res, next) {
         return res.json({valid:true, profile: rows[0]}); 
     }                   
   });
+});
+router.post('/updateProfileById', function(req, res, next) {
+  var usersQuery = ''
+  if(req.body.firstName){usersQuery+='firstName = "'+req.body.firstName+'"'}
+  if(req.body.surname){
+    if(req.body.firstName){usersQuery+=', '}
+    usersQuery+='surname = "'+req.body.surname+'"'
+  }
+  var profilesQuery = '';
+  var i=1
+  for(var key in req.body){
+    if(key != 'firstName'&&key != 'surname'&&key != 'user') { 
+      profilesQuery += key +" = '"+req.body[key]+"'";
+      if(i!=Object.keys(req.body).length-1) profilesQuery += ', ';
+    }
+    i++
+  }
+  if(req.body.firstName || req.body.surname){
+    connection.query(`
+      UPDATE users
+      SET
+      ${usersQuery}
+      WHERE id = ${req.body.user}
+    `,function(err,rows){
+      if(err){res.status(500);}         console.log(rows)        
+    });
+  }
+  console.log(profilesQuery)
+  if(req.body.university ||req.body.grade ||req.body.bio ||req.body.facebook ||req.body.twitter ||req.body.instagram ||req.body.snapchat){
+    connection.query(`
+      UPDATE profiles
+      SET
+      ${profilesQuery}
+      WHERE user_id = ${req.body.user}
+    `,function(err,rows){
+      if(err){res.status(500);}   console.log(rows)               
+    });
+  }
+  return res.json({valid:true});
 });
 
 router.post('/upload', (req, res) => {

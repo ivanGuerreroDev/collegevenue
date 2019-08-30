@@ -81,4 +81,69 @@ router.post('/deletefollow', function(req, res, next) {
     });
   });
 
+router.post('/getRequests', function(req, res, next) {
+  connection.query(`SELECT friend_requests.request, friend_requests.user_id, users.firstName, users.surname, profiles.avatar 
+  FROM friend_requests
+  JOIN users ON friend_requests.request = users.id
+  JOIN profiles ON friend_requests.request = profiles.user_id
+  WHERE friend_requests.user_id = ${req.body.user}
+  `, function(err,rows){
+    if(err){
+      return res.status(203).json({valid:false, error: 'Error'})   
+    }else{
+      console.log(rows);
+      return res.json({valid:true, result: rows});
+    }                   
+  });
+});
+
+router.post('/getRequestsById', function(req, res, next) {
+  connection.query(`
+  SELECT * 
+  FROM friend_requests
+  WHERE user_id = ${req.body.user} AND request = ${req.body.request}
+  `, function(err,rows){
+    if(err){
+      return res.status(203).json({valid:false, error: 'Error'})   
+    }else{
+      console.log(rows);
+      return res.json({valid:true, result: rows});
+    }                   
+  });
+});
+router.post('/sendRequests', function(req, res, next) {
+  connection.query(`INSERT INTO friend_requests
+  (user_id, request) VALUES (${req.body.user}, ${req.body.request})
+  `, function(err,rows){
+    if(err){
+      return res.status(203).json({valid:false, error: 'Error'})   
+    }else{
+      console.log(rows);
+      return res.json({valid:true, result: rows});
+    }                   
+  });
+});
+router.post('/deleteRequests', function(req, res, next) {
+  connection.query(`DELETE FROM friend_requests 
+  WHERE user_id = ${req.body.user} AND request = ${req.body.request}
+  `, function(err,rows){
+    if(err){
+      return res.status(203).json({valid:false, error: 'Error'})   
+    }else{
+      connection.query(`DELETE FROM follows
+      WHERE 
+      id_user = ${req.body.user} &&
+      follow = ${req.body.follow}
+      `, function(err,rows){
+        if(err){
+          return res.status(203).json({valid:false, error: 'Error'})   
+        }else{
+          console.log(rows);
+          return res.json({valid:true, result: rows});
+        }                   
+      });
+    }                   
+  });
+});
+
 module.exports = router;
