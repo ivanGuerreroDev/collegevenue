@@ -47,18 +47,21 @@ var resOnlineUsers = {}
 io.on('connection', function(socket){
   onlineUsers[socket.handshake.query.id] = socket.id;
   resOnlineUsers[socket.id] = socket.handshake.query.id;
-  console.log(onlineUsers);
+  console.log(onlineUsers)
   socket.on('update messages', function (data) {
-    console.log(data.timestamp)
     connection.query(`
-    SELECT messages.id, messages.to_user, messages.from_user, messages.message, messages.timestamp, users.firstName, users.surname, users.correo, profiles.avatar
-    FROM ((messages
-    INNER JOIN users ON messages.from_user = users.id)
-    INNER JOIN profiles ON messages.from_user = profiles.user_id)
+    SELECT 
+    messages.id, messages.to_user, messages.from_user, messages.message, messages.timestamp, 
+    users.firstName, users.surname, users.correo, profiles.avatar
+    FROM messages
+    JOIN users ON messages.from_user = users.id
+    JOIN profiles ON messages.from_user = profiles.user_id
     WHERE 
-    (messages.to_user = ${data.id} OR messages.from_user = ${data.id}) AND messages.timestamp <= ${data.timestamp}
+    (messages.to_user = ${data.id} OR messages.from_user = ${data.id}) 
+    AND (messages.to_user = ${data.id2} OR messages.from_user = ${data.id2}) 
+    AND messages.timestamp <= ${data.timestamp}
     ORDER BY timestamp DESC 
-    LIMIT ${data.from},${data.to}
+    LIMIT ${data.from}, ${data.to}
     `,function(err,rows){
       if(err){
         console.log('error con el query');
@@ -66,11 +69,30 @@ io.on('connection', function(socket){
       }else{
       if(rows){
         var socketID = onlineUsers[data.correo];
-        io.to(socketID).emit('MESSAGES_SEND', rows)
+        socket.emit('MESSAGES_SEND', rows)
       }
     }
     });
   })
+  socket.on('update chats', function (data) {
+    connection.query(`
+    SELECT chats.id, chats.user_1, chats.user_2, chats.last_message, messages.message, messages.timestamp, users.firstName, users.surname, users.correo, profiles.avatar
+    FROM chats
+    JOIN messages ON chats.last_message = messages.id
+    JOIN users on (chats.user_1 = users.id OR chats.user_2 = users.id)
+    JOIN profiles ON (chats.user_1 = profiles.user_id OR chats.user_2 = profiles.user_id)
+    WHERE chats.user_1 = ${data.id} OR chats.user_2 = ${data.id}
+    GROUP BY chats.id
+    `,function(err,rows){
+      if(err){console.log(err);}
+      else{
+      if(rows){
+        socket.emit('CHATS_SEND', rows)
+      }
+    }
+    });
+  })
+
 
   socket.on('connected', function(data){
    // console.log("ENTRE");
@@ -124,21 +146,40 @@ io.on('connection', function(socket){
   })
 
   socket.on('new message', function(data){
-    console.log('message recived '+ data.message)
     connection.query(`
     INSERT INTO messages 
     (to_user, from_user, message, timestamp)
     VALUES
-    ( ${data.id}, ${data.from_user}, '${data.message}', ${data.timestamp})
-    `,function(err,rows2){ 
+    ( ${data.to_user}, ${data.from_user}, '${data.message}', ${data.timestamp})
+    `,function(err,rows){ 
         if(err){
           console.log(err);
         }else{
-          io.to(onlineUsers[data.from_user_correo]).emit('message recived',{sucess:true, sender: data.from_user, timestamp: data.timestamp});
-          io.to(onlineUsers[data.correo]).emit('message recived', {sucess:true, sender: data.id , timestamp: data.timestamp});
+          connection.query(`
+          SELECT *
+          FROM chats 
+          WHERE user_1 = ${data.from_user} OR user_2 = ${data.to_user} OR user_1 = ${data.to_user} OR user_2 = ${data.from_user}
+          `,function(err,rows2){
+            if(err){console.log(err)}
+            else{
+              if(rows2.length == 0){
+                connection.query(`
+                INSERT INTO chats
+                (user_1, user_2,last_message)
+                VALUES
+                (${data.from_user}, ${data.to_user}, ${rows.insertId})
+                `,function(err,rows3){console.log(err)})
+              }
+            }
+          })
+          socket.emit('message recived',{success:true, id: data.from_user, id2: data.to_user, timestamp: data.timestamp});
+        
+          io.to(onlineUsers[data.correo]).emit('message recived',{success:true, id: data.from_user, id2: data.to_user, timestamp: data.timestamp, to: onlineUsers[data.correo]})
+         
         }
-      //socket.emit('message recived', data)
     });
+    
+    
   })
 
   socket.on('disconnect', function(socket){
