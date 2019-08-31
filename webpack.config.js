@@ -7,7 +7,7 @@ const BUILD_DIR = path.resolve(__dirname, "public");
 const APP_DIR = path.resolve(__dirname, "src");
 const SCSS_DIR = path.resolve(__dirname, "src/assets/scss");
 const SRC = path.resolve(__dirname, "public");
-
+var port = process.env.PORT || 8080;
 var config = {
   context: path.join(__dirname, "src"),
   devtool: debug ? "eval" : false,
@@ -63,7 +63,7 @@ var config = {
   },
   devServer: {
     host: "localhost", // Defaults to `localhost`
-    port: 3000, // Defaults to 8080,
+    port: port, // Defaults to 8080,
     historyApiFallback: true,
     proxy: {
       "^/api/*": {

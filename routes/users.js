@@ -25,27 +25,31 @@ router.post("/login", passport.authenticate("local"), function(req, res) {
 });
 
 router.post("/register", function(req, res, next) {
-  if(!req.body.firstname || !req.body.surname || !req.body.correo || !req.body.password) {
-    return res.json({valid: false, error: 'Please fill all fields!'})
-  }
-  var columns = '', values = '';
-  req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
-  for(var key in req.body){
-    if(key != 'id') {
-      columns += key; values += "'"+req.body[key]+"'";
-      columns += ', ';values += ', ';
-    } 
-  }
-  columns+="privilege";
-  values+="'user'";
+  console.log(req.body)
+  var columns = '';var values = '';var columns2 = '';var values2 = '';
+  if(req.body.greek){columns2+='greek, "';values2+=req.body.greek+'", '}
+  if(req.body.sports){columns2+='sports, "';values2+=req.body.sports+'", '}
+  if(req.body.firstname && req.body.surname && req.body.school && req.body.password && req.body.correo){
+    req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
+    columns+='firstName, surname, password, correo'; 
+    values+='"'+req.body.firstname+'", "'+req.body.surname+'", "'+req.body.password+'", "'+req.body.correo+'"';
+    columns2+='university, ';
+    values2+='"'+req.body.school+'", '
+  }else{return res.json({error: 'Please fill all required fields!'})}
   connection.query(`INSERT INTO users (${columns}) VALUES (${values})`,function(err,rows){
     if(err){
-      if(err.code == 'ER_DUP_ENTRY') {return  res.json({valid: false, error: 'Username or Email in use!'}); }
-      else{return  res.status(500);} 
+      if(err.code == 'ER_DUP_ENTRY') return res.json({error: 'Username or Email in use!'});
+      console.log(err); return res.status(500);   
     }else{
-      return res.json({valid:true, message: 'Resgistered'});
-    }
-                    
+      columns2+='user_id';
+      values2+=rows.insertId;
+      connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
+        if(err){return res.status(500);}
+        else{
+          return res.json({valid:true, notice: 'User created'}); 
+        }
+      })
+    }                  
   });
 });
 
@@ -116,25 +120,29 @@ router.post('/user', isLoggedIn, function(req, res, next) {
 });
 
 router.post('/user/create', isLoggedIn, function(req, res, next) {
-  var columns = '';
-  var values = '';
-  var i=0;
-  req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
-  for(var key in req.body){
-    if(key != 'id') {
-      columns += key 
-      values += "'"+req.body[key]+"'";
-      if(i!=Object.keys(req.body).length-1) {columns += ', ';values += ', ';}
-    }
-    i++
-  }
+  var columns = '';var values = '';var columns2 = '';var values2 = '';
+  if(req.body.greek){columns2+='greek, ';values2+=req.body.greek+', '}
+  if(req.body.sports){columns2+='sports, ';values2+=req.body.sports+', '}
+  if(req.body.firstname && req.body.surname && req.body.school && req.body.password){
+    req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
+    columns+='firstName, surname, password'; 
+    values+=req.body.firstname+', '+req.body.surname+', '+req.body.password;
+    columns2+='school, ';
+    values2+=req.body.school+', '
+  }else{return res.json({error: 'Please fill all required fields!'})}
   connection.query(`INSERT INTO users (${columns}) VALUES (${values})`,function(err,rows){
     if(err){
-      if(err.code == 'ER_DUP_ENTRY') res.json({error: 'Username or Email in use!'}); 
-      console.log(err)
-      res.status(500);   
+      if(err.code == 'ER_DUP_ENTRY') return res.json({error: 'Username or Email in use!'});
+      return res.status(500);   
     }else{
-        return res.json({notice: 'User created'}); 
+      columns2+='user_id';
+      values2+=rows.insertId;
+      connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
+        if(err){return res.status(500);}
+        else{
+          return res.json({valid:true, notice: 'User created'}); 
+        }
+      })
     }                  
   });
   
