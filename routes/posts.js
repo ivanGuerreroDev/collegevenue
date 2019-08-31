@@ -100,6 +100,23 @@ router.post('/getPostsByid', function(req, res, next) {
     });
   });
 
+router.post('/getTrendingPosts', function(req, res, next) {
+    // GET/users/ route
+    connection.query(`
+    SELECT posts.id, posts.date, posts.comments, posts.shares, posts.likes, posts.text, posts.media, users.id, users.firstName, users.surname 
+    FROM posts 
+    INNER JOIN users ON posts.user_post = users.id 
+    ORDER BY posts.shares DESC, posts.likes DESC, posts.comments DESC
+    LIMIT ${req.from},${req.to}
+    `,function(err,rows){
+      if(err){
+        return res.status(203).json({valid:false, error: 'Error'})   
+      }else{
+        return res.json({valid:true, result: rows});
+      }                   
+    });
+});
+
 router.post('/updatePost', function(req, res, next) {
     // GET/users/ route
     connection.query(`UPDATE posts 
