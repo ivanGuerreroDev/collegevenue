@@ -70,6 +70,7 @@ router.post("/addFriend", function(req, res){
                 VALUES
                     (${req.body.user},${req.body.friend}), 
                     (${req.body.friend},${req.body.user})
+                    
             `,function(err,rows){
                 if(err){ 
                     console.log(err)
