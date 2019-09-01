@@ -107,6 +107,7 @@ router.post('/getTrendingPosts', function(req, res, next) {
     FROM posts 
     INNER JOIN users ON posts.user_post = users.id 
     ORDER BY posts.shares DESC, posts.likes DESC, posts.comments DESC
+    WHERE posts.date <= ${req.date.from} AND posts.date > ${req.date.to}
     LIMIT ${req.from},${req.to}
     `,function(err,rows){
       if(err){
