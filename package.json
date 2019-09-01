@@ -72,6 +72,7 @@
     "react-scripts": "2.1.1",
     "redux": "^4.0.4",
     "sass-loader": "^6.0.6",
+    "sendmail": "^1.6.1",
     "shards-react": "^1.0.0",
     "shortid": "^2.2.14",
     "socket.io": "^2.2.0",
