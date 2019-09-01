@@ -39,7 +39,7 @@ router.post("/getPosts", function(req, res) {
       FROM follows
       WHERE user_id = ${req.body.user}
   `,function(err,rows){
-    if(err) return res.status(203).json({valid:false, error: 'Error'})
+    if(err) {console.log(err); return res.status(203).json({valid:false, error: 'Error'})}
     rows.forEach((i, idx, array) => {
         if(idx == array.length - 1){friends += i['follow']}
         else{friends += i['follow']+', '}
@@ -107,9 +107,10 @@ router.post('/getTrendingPosts', function(req, res, next) {
     FROM posts 
     INNER JOIN users ON posts.user_post = users.id 
     ORDER BY posts.shares DESC, posts.likes DESC, posts.comments DESC
-    LIMIT ${req.from},${req.to}
+    LIMIT ${req.body.from},${req.body.to}
     `,function(err,rows){
       if(err){
+        console.log(err)
         return res.status(203).json({valid:false, error: 'Error'})   
       }else{
         return res.json({valid:true, result: rows});

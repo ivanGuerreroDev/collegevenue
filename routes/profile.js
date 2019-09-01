@@ -31,7 +31,10 @@ router.get('/:id', function(req, res, next) {
 
 router.post('/getProfileById', function(req, res, next) {
   connection.query(`
-    SELECT users.firstName, users.surname, users.correo, users.id, profiles.avatar, profiles.university, profiles.grade, profiles.follows, profiles.bio, profiles.facebook, profiles.instagram, profiles.twitter, profiles.snapchat 
+    SELECT users.firstName, users.surname, users.correo, users.id, profiles.avatar, 
+    profiles.university, profiles.grade, profiles.follows, profiles.bio, profiles.facebook, 
+    profiles.instagram, profiles.twitter, profiles.snapchat, profiles.greeklife, profiles.sports, 
+    profiles.relationship, profiles.birthdate
     FROM users 
     JOIN profiles ON profiles.user_id = users.id
     WHERE users.id = ${req.body.user}
