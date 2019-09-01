@@ -50,7 +50,7 @@ router.post('/getfollowersByID', function(req, res, next) {
     // GET/users/ route
     connection.query(`SELECT * FROM follows
     WHERE 
-    id_user = ${req.body.user} 
+    user_id = ${req.body.user} 
     `, function(err,rows){
       if(err){
         return res.status(203).json({valid:false, error: 'Error'})   
@@ -65,7 +65,7 @@ router.post('/deletefollow', function(req, res, next) {
     // GET/users/ route
     connection.query(`DELETE FROM follows
     WHERE 
-    id_user = ${req.body.user} &&
+    user_id = ${req.body.user} &&
     follow = ${req.body.follow}
     `, function(err,rows){
       if(err){
@@ -150,7 +150,7 @@ router.post('/deleteRequests', function(req, res, next) {
     }else{
       connection.query(`DELETE FROM follows
       WHERE 
-      id_user = ${req.body.user} &&
+      user_id = ${req.body.user} &&
       follow = ${req.body.follow}
       `, function(err,rows){
         if(err){
