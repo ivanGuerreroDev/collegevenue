@@ -64,8 +64,21 @@ router.post("/addFriend", function(req, res){
             console.log(err)
             return res.json({valid:false, error:'Error'}) 
         }else{
-            
-            return res.json({valid:true, result:rows})
+                connection.query(`
+                INSERT INTO follows
+                (user_id,follow)
+                VALUES
+                    (${req.body.user},${req.body.friend}), 
+                    (${req.body.friend},${req.body.user})
+            `,function(err,rows){
+                if(err){ 
+                    console.log(err)
+                    return res.json({valid:false, error:'Error'}) 
+                }else{
+                    
+                    return res.json({valid:true, result:rows})
+                }
+            })
         }
     })
 })
