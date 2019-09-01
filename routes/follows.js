@@ -82,9 +82,11 @@ router.post('/deletefollow', function(req, res, next) {
     connection.query(`SELECT users.id, profiles.id, users.firstName, users.surname, users.correo, profiles.avatar 
     FROM users 
     INNER JOIN follows ON users.id = follows.follow AND follows.user_id IN 
-      ( SELECT follows.follow FROM follows WHERE follows.user_id = ${req.body.user} ) 
+      ( SELECT follows.follow FROM follows WHERE follows.user_id = ${req.body.user}) 
       AND follows.follow NOT IN 
         ( SELECT follows.follow FROM follows WHERE follows.user_id = ${req.body.user}) INNER JOIN profiles ON users.id = profiles.user_id
+      AND follows.follow NOT IN
+        (SELECT friends.friend FROM friends WHERE friends.user_id= ${req.body.user})
         ORDER BY RAND() 
         LIMIT ${req.body.from},${req.body.to}
     `, function(err,rows){
