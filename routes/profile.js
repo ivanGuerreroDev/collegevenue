@@ -5,6 +5,7 @@ var passport = require('passport')
 var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
+import { isString } from 'util';
 
 const Storage = multer.diskStorage({
     destination(req, file, callback) {
@@ -43,13 +44,13 @@ router.post('/getProfileById', function(req, res, next) {
      console.log(err)
      res.status(500);   
     }else{
-        console.log(rows)
         return res.json({valid:true, profile: rows[0]}); 
     }                   
   });
 });
 router.post('/updateProfileById', function(req, res, next) {
   var usersQuery = ''
+  if(req.body.correo){usersQuery+='correo = "'+req.body.correo+'", '}
   if(req.body.firstName){usersQuery+='firstName = "'+req.body.firstName+'"'}
   if(req.body.surname){
     if(req.body.firstName){usersQuery+=', '}
@@ -58,9 +59,13 @@ router.post('/updateProfileById', function(req, res, next) {
   var profilesQuery = '';
   var i=1
   for(var key in req.body){
-    if(key != 'firstName'&&key != 'surname'&&key != 'user') { 
-      profilesQuery += key +" = '"+req.body[key]+"'";
-      if(i!=Object.keys(req.body).length-1) profilesQuery += ', ';
+    if(key != 'firstName' && key != 'surname' && key != 'correo' && key != 'user') { 
+      if(key==='birthdate'){
+        profilesQuery += key +" = "+req.body[key];
+      }else{
+        profilesQuery += key +" = '"+mysql_real_escape_string(req.body[key])+"'";
+      }
+      if(i!=Object.keys(req.body).length) profilesQuery += ', ';
     }
     i++
   }
@@ -71,7 +76,7 @@ router.post('/updateProfileById', function(req, res, next) {
       ${usersQuery}
       WHERE id = ${req.body.user}
     `,function(err,rows){
-      if(err){res.status(500);}         console.log(rows)        
+      if(err){return res.status(500);}        
     });
   }
   console.log(profilesQuery)
@@ -82,7 +87,7 @@ router.post('/updateProfileById', function(req, res, next) {
       ${profilesQuery}
       WHERE user_id = ${req.body.user}
     `,function(err,rows){
-      if(err){res.status(500);}   console.log(rows)               
+      if(err){console.log(err); return res.status(500);}             
     });
   }
   return res.json({valid:true});
@@ -121,9 +126,36 @@ router.post('/:id', function(req, res, next) {
   });
 });
 
+function mysql_real_escape_string (str) {
+  if(typeof str === 'string' || str instanceof String){
+    return str.replace(/[\0\x08\x09\x1a\n\r"'\\\%]/g, function (char) {
+        switch (char) {
+            case "\0":
+                return "\\0";
+            case "\x08":
+                return "\\b";
+            case "\x09":
+                return "\\t";
+            case "\x1a":
+                return "\\z";
+            case "\n":
+                return "\\n";
+            case "\r":
+                return "\\r";
+            case "\"":
+            case "'":
+            case "\\":
+            case "%":
+                return "\\"+char; // prepends a backslash to backslash, percent,
+                                  // and double/single quotes
+        }
+    });
+  }else{
+    return str
+  }
+}
 
-
-module.exports = router;
+module.exports = router; 
 
 function isLoggedIn(req, res, next) {
 	if (req.isAuthenticated())

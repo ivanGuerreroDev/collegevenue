@@ -38,7 +38,7 @@ router.post("/deleteFriendRequest", function(req, res){
 router.post("/getFriendRequestById", function(req, res){
 
     connection.query(`
-        SELECT users.id, users.firstName, users.surname, users.correo 
+        SELECT users.id, users.firstName, users.surname, users.correo, profiles.avatar
         FROM friend_requests
         INNER JOIN users ON users.id = friend_request.user_id
         WHERE friend_requests.request = ${req.body.user}  
@@ -89,10 +89,11 @@ router.post('/deleteFriend', function(req, res, next) {
 
 router.post("/getFriendsById", function(req, res){
     connection.query(`
-        SELECT users.id, users.firstName, users.surname, users.correo 
+        SELECT users.id, users.firstName, users.surname, users.correo, profiles.avatar
         FROM friends
-        INNER JOIN users ON users.id = friends.user_id
-        WHERE user_id = ${req.body.user}  
+        JOIN users ON users.id = friends.user_id
+        JOIN profiles ON friends.user_id = profiles.user_id
+        WHERE friends.user_id = ${req.body.user}  
     `,function(err,rows){
         console.log(err)
         if(err){ 
