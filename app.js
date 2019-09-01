@@ -48,6 +48,8 @@ const shares = require("./routes/shares");
 app.use("/api/shares", shares);
 const follows = require("./routes/follows");
 app.use("/api/follows", follows);
+const friends = require("./routes/friends");
+app.use("/api/friends", friends);
 
 // SOCKET CHAT
 
