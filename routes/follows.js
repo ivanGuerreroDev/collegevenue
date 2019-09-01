@@ -30,6 +30,22 @@ router.post("/createfollow", function(req, res){
     })
 })
 
+
+router.post('/checkFollowByID', function(req, res, next) {
+  // GET/users/ route
+  connection.query(`SELECT * FROM follows
+  WHERE 
+  user_id = ${req.body.user} AND follow = ${req.body.request}
+  `, function(err,rows){
+    if(err){
+      console.log(err)
+      return res.status(203).json({valid:false, error: 'Error'})   
+    }else{
+      console.log(rows);
+      return res.json({valid:true, result: rows});
+    }                   
+  });
+});
 router.post('/getfollowersByID', function(req, res, next) {
     // GET/users/ route
     connection.query(`SELECT * FROM follows
