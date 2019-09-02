@@ -75,7 +75,7 @@ app.use("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
-server.listen(3000, () => {
+server.listen(port, () => {
   console.log('server started and listening on port ' + port);
 }); 
 
