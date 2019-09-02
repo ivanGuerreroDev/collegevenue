@@ -304,7 +304,7 @@ router.post('/changePassword', function(req,res) {
         });
       }else{
         console.log('Password Invalida');
-        return res.json({valid:false, notice: 'Password Invalida'})
+        return res.json({valid:false, notice: 'Password Invalid'})
       }       
     }      
   })
