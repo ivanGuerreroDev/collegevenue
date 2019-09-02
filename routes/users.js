@@ -34,7 +34,7 @@ router.post("/register", function(req, res, next) {
   if(req.body.firstname && req.body.surname && req.body.school && req.body.password && req.body.correo){
     req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
     columns+='firstName, surname, password, correo, privilege'; 
-    values+='"'+req.body.firstname+'", "'+req.body.surname+'", "'+req.body.password+'", "'+req.body.correo+'"'+'", "user"';
+    values+='"'+req.body.firstname+'", "'+req.body.surname+'", "'+req.body.password+'", "'+req.body.correo+'", "user"';
     columns2+='university, ';
     values2+='"'+req.body.school+'", '
   }else{return res.json({error: 'Please fill all required fields!'})}
