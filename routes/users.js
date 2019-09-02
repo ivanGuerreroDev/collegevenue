@@ -305,11 +305,11 @@ router.post('/changePassword', function(req,res) {
           }
         });
       }else{
-        return res.json({valid:false, notice: 'Password Invalida'})
+        return res.json({valid:false, notice: 'Invalid Password'})
       }
     }else{
-      console.log('Password Invalida');
-      return res.json({valid:false, notice: 'Password Invalida'})
+      console.log('Invalid Password');
+      return res.json({valid:false, notice: 'Invalid Password'})
     }       
   }      
 })
