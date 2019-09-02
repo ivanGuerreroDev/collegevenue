@@ -287,7 +287,7 @@ router.post('/changePassword', function(req,res) {
       console.log('Error en Request 1');
       return res.json({valid:false, notice: 'Error on Request'})
     }else{
-    if(rows){
+    if(rows.length > 0){
       console.log(rows);
         connection.query(`
         UPDATE users
@@ -303,6 +303,9 @@ router.post('/changePassword', function(req,res) {
             return res.json({valid:true, notice: 'Your password has been changed!'})
           }
         });
+      }else{
+        console.log('Password Invalida');
+        return res.json({valid:false, notice: 'Password Invalida'})
       }       
     }      
   })
