@@ -40,10 +40,9 @@ class User extends React.Component {
   }
   
   checkInputs() {
-    if(this.state.user) return false
+    console.log(this.state.user)
     for (var key in this.state.user) {
-        if (obj[key] !== null && obj[key] != "")
-            return false;
+        if (this.state.user[key] === null || this.state.user[key] === "") return false;
     } 
     return true;
   } 
@@ -222,14 +221,6 @@ class User extends React.Component {
                                 <option selected={this.selectPrivilege('admin')} >admin</option>
                                 <option selected={this.selectPrivilege('user')}>user</option>
                                 <option selected={this.selectPrivilege('intern')}>intern</option>
-                              </FormSelect>
-                            </Col>
-                            <Col md="6" className="form-group">
-                              <label htmlFor="feInputGender">Gender</label>
-                              <FormSelect id="feInputGender" onChange={(e)=>this.handleChange(e,'gender')}>
-                                <option disabled >Select gender</option>
-                                <option selected={this.selectGender('admin')} >Male</option>
-                                <option selected={this.selectGender('user')}>Female</option>
                               </FormSelect>
                             </Col>
                             
