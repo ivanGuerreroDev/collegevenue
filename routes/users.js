@@ -198,7 +198,6 @@ router.post('/newPassword', function(req,res) {
                                                 FROM users
                                                 WHERE correo = '${req.body.email}')
   AND valid = 1
-  AND token = '${req.body.token}'
   `,function(err,rows){
     if(err) {
       console.log(err);
