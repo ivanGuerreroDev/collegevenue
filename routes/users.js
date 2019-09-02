@@ -14,12 +14,14 @@ router.get('/', function(req, res, next) {
 
 router.post("/login", passport.authenticate("local"), function(req, res) {
   if(!req.body.correo){
-    return res.status(400).send({
+    console.log('requiere correo')
+    return res.json({
       valid: false,
       message: 'Email is required',
     });
   }else if(!req.body.password){
-    return res.status(400).send({
+    console.log('requiere pass')
+    return res.json({
       valid: false,
       message: 'Password is required',
     });
