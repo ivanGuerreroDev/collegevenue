@@ -34,7 +34,7 @@ router.post("/register", function(req, res, next) {
   if(req.body.firstname && req.body.surname && req.body.school && req.body.password && req.body.correo){
     req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
     columns+='firstName, surname, password, correo, privilege'; 
-    values+='"'+req.body.firstname+'", "'+req.body.surname+'", "'+req.body.password+'", "'+req.body.correo+'"'+'", "user"';
+    values+='"'+req.body.firstname+'", "'+req.body.surname+'", "'+req.body.password+'", "'+req.body.correo+'", "user"';
     columns2+='university, ';
     values2+='"'+req.body.school+'", '
   }else{return res.json({error: 'Please fill all required fields!'})}
@@ -155,22 +155,20 @@ router.post('/recovery', function(req,res) {
   connection.query(`
   SELECT *
   FROM password_request
-  WHERE email = '${req.body.email}' AND email IN (SELECT correo
-                                                FROM users
-                                                WHERE correo = '${req.body.email}')
-  AND token = '${req.body.token}'
+  WHERE email = '${req.body.correo}'  AND token = '${req.body.code}'
   `,function(err,rows){
+    console.log(req.body)
     if(err) {
       console.log(err);
       console.log('Error en Request 1');
       return res.json({valid:false, notice: 'Error on Request'})
     }else{
-    if(rows.length > 0){
+      if(rows[0]){
       console.log(rows);
         connection.query(`
         UPDATE password_request
         SET valid = 1
-        WHERE email = '${req.body.email}'
+        WHERE email = '${req.body.correo}'
         `,function(err,rows){
           if(err){
             console.log(err);
@@ -195,9 +193,9 @@ router.post('/newPassword', function(req,res) {
   connection.query(`
   SELECT *
   FROM password_request
-  WHERE email = '${req.body.email}' AND email IN (SELECT correo
+  WHERE email = '${req.body.correo}' AND email IN (SELECT correo
                                                 FROM users
-                                                WHERE correo = '${req.body.email}')
+                                                WHERE correo = '${req.body.correo}')
   AND valid = 1
   `,function(err,rows){
     if(err) {
@@ -211,7 +209,7 @@ router.post('/newPassword', function(req,res) {
         connection.query(`
         UPDATE users
         SET password = '${req.body.password}'
-        WHERE correo = '${req.body.email}'
+        WHERE correo = '${req.body.correo}'
         `,function(err,rows){
           if(err){
             console.log(err);
@@ -219,6 +217,12 @@ router.post('/newPassword', function(req,res) {
             return res.json({valid:false, notice: 'Error on Request'})
           }else{
             console.log('Password Cambiada!');
+            connection.query(`
+              DELETE FROM password_request
+              WHERE email = '${req.body.correo}'
+              `,function(err,rows){
+                
+            })
             return res.json({valid:true, notice: 'Your new password is saved, now try to log in!'})
           }
         });
@@ -239,9 +243,9 @@ router.post('/forgotPassword', function(req,res) {
   connection.query(`
   SELECT *
   FROM password_request
-  WHERE email = '${req.body.email}' AND email IN (SELECT correo
+  WHERE email = '${req.body.correo}' AND email IN (SELECT correo
                                                 FROM users
-                                                WHERE correo = '${req.body.email}')
+                                                WHERE correo = '${req.body.correo}')
   `,function(err,rows){
     if(err) {
       console.log(err);
@@ -251,12 +255,12 @@ router.post('/forgotPassword', function(req,res) {
     if(rows.length > 0){
       console.log(rows);
       console.log('Ese Email ya tiene un Codigo');
-      return res.json({valid:false, notice: 'That account already requested a code'})
+      return res.json({valid:true, notice: 'That account already requested a code'})
       }else{
-        sendCode(req.body.email,code);
+        sendCode(req.body.correo,code);
         connection.query(`
         INSERT INTO password_request (email,token,valid)
-        VALUES ('${req.body.email}',${code},0)
+        VALUES ('${req.body.correo}','${code}',0)
         `,function(err,rows){
           if(err){
             console.log(err);
@@ -274,21 +278,19 @@ router.post('/forgotPassword', function(req,res) {
 })
 
 router.post('/changePassword', function(req,res) {
-
+  console.log(req.body)
   req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
-
   connection.query(`
   SELECT *
   FROM users
-  WHERE id = ${req.body.id} AND password = '${req.body.password}'
+  WHERE id = ${req.body.id}
   `,function(err,rows){
+    console.log(err)
     if(err) {
-      console.log(err);
-      console.log('Error en Request 1');
       return res.json({valid:false, notice: 'Error on Request'})
     }else{
     if(rows.length > 0){
-      console.log(rows);
+      if(bcrypt.compareSync(req.body.oldPassword, rows[0].password)){
         connection.query(`
         UPDATE users
         SET password = '${req.body.password}'
@@ -304,11 +306,14 @@ router.post('/changePassword', function(req,res) {
           }
         });
       }else{
-        console.log('Password Invalida');
-        return res.json({valid:false, notice: 'Password Invalid'})
-      }       
-    }      
-  })
+        return res.json({valid:false, notice: 'Invalid Password'})
+      }
+    }else{
+      console.log('Invalid Password');
+      return res.json({valid:false, notice: 'Invalid Password'})
+    }       
+  }      
+})
 
 })
 
