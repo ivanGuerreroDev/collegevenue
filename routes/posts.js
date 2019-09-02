@@ -100,6 +100,25 @@ router.post('/getPostsByid', function(req, res, next) {
     });
   });
 
+  router.post('/getMediaPostsByid', function(req, res, next) {
+    // GET/users/ route
+    connection.query(`
+    SELECT posts.id, posts.user_post, posts.date, posts.comments,posts.shares,posts.likes,posts.text,posts.media, 
+    IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
+    IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS shared
+    FROM posts
+    WHERE user_post = ${req.body.user} AND media <> ''
+    ORDER BY date DESC
+    LIMIT ${req.body.from}, ${req.body.to}
+    `,function(err,rows){
+      if(err){
+        return res.status(203).json({valid:false, error: 'Error'})   
+      }else{
+        return res.json({valid:true, result: rows});
+      }                   
+    });
+  });
+
 router.post('/getTrendingPosts', function(req, res, next) {
     // GET/users/ route
     connection.query(`
