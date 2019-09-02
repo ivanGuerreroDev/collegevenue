@@ -157,6 +157,7 @@ router.post('/recovery', function(req,res) {
   WHERE email = '${req.body.email}' AND email IN (SELECT correo
                                                 FROM users
                                                 WHERE correo = '${req.body.email}')
+  AND token = '${req.body.token}'
   `,function(err,rows){
     if(err) {
       console.log(err);
@@ -229,6 +230,8 @@ router.post('/newPassword', function(req,res) {
 
 })
 
+
+
 router.post('/forgotPassword', function(req,res) {
 
   var code = makeid(8);
@@ -262,6 +265,42 @@ router.post('/forgotPassword', function(req,res) {
           }else{
             console.log('codigo enviado al email');
             return res.json({valid:true, notice: 'The code has been sent to your email!'})
+          }
+        });
+      }       
+    }      
+  })
+
+})
+
+router.post('/changePassword', function(req,res) {
+
+  req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
+
+  connection.query(`
+  SELECT *
+  FROM users
+  WHERE id = ${req.body.id} AND password = '${req.body.password}'
+  `,function(err,rows){
+    if(err) {
+      console.log(err);
+      console.log('Error en Request 1');
+      return res.json({valid:false, notice: 'Error on Request'})
+    }else{
+    if(rows){
+      console.log(rows);
+        connection.query(`
+        UPDATE users
+        SET password = '${req.body.password}'
+        WHERE id = ${req.body.id}
+        `,function(err,rows){
+          if(err){
+            console.log(err);
+            console.log('Error en Request 2');
+            return res.json({valid:false, notice: 'Error on Request'})
+          }else{
+            console.log('Password Cambiada');
+            return res.json({valid:true, notice: 'Your password has been changed!'})
           }
         });
       }       
