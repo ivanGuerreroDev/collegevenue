@@ -48,6 +48,7 @@ router.post("/register", function(req, res, next) {
       connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
         if(err){return res.status(500);}
         else{
+          welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname);
           return res.json({valid:true, notice: 'User created'}); 
         }
       })
@@ -354,6 +355,30 @@ function sendCode(email, code){
     subject: "Verification Code from Businet", // Subject line
     text: "Verification Code", // plain text body
     html: '<b>The Verification Code is: '+code+'</b>' // html body
+  };
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) return console.log(error);
+    console.log('Message %s sent: %s', info.messageId, info.response);
+  });
+};
+
+function welcomeMail(email, username){
+  console.log('ejecutado ')
+  let transporter = nodeMailer.createTransport({
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
+    auth: {
+      user: 'noreplybusient@gmail.com',
+      pass: 'BuSiNeT1'
+    }
+  });
+  let mailOptions = {
+    from: '"Businet" <noreplybusient@gmail.com>', // sender address
+    to: email, // list of receivers
+    subject: "Welcome Mail", // Subject line
+    text: "Welcome Mail", // plain text body
+    html: '<b>Greetings '+username+', welcome</b>' // html body
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) return console.log(error);
