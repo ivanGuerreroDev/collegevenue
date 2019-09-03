@@ -53,11 +53,11 @@ router.post("/getPosts", function(req, res) {
         FROM posts
         JOIN users ON posts.user_post = users.id
         JOIN profiles ON posts.user_post = profiles.user_id
-        WHERE posts.user_post IN (0, ${friends} ${me}) 
+        WHERE posts.user_post IN ( ${friends} ${me}) 
         ORDER BY posts.date DESC
         LIMIT ${req.body.from}, ${req.body.to}
     `,function(err,rows){
-      console.log(friends+' '+me)
+      console.log(rows)
       if(err) {console.log(err); return res.status(203).json({valid:false, error: 'Error'})}
       posts.normal = rows
       connection.query(`
@@ -71,13 +71,13 @@ router.post("/getPosts", function(req, res) {
         JOIN users ON users.id = shares.user_id
         JOIN profiles ON profiles.user_id = posts.user_post
         JOIN users as uShare ON posts.user_post = uShare.id
-        WHERE posts.user_post IN (0, ${friends} ${me}) 
+        WHERE posts.user_post IN ( ${friends} ${me}) 
         ORDER BY posts.date DESC
         LIMIT ${req.body.from}, ${req.body.to}
       `,function(err,rows){
         if(err) {console.log(err);return res.status(203).json({valid:false, error: 'Error'})}
         posts.shares = rows
-        console.log(result)
+        console.log(posts)
         return res.json({valid:true, result: posts})
       })
     })
