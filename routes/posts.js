@@ -77,6 +77,7 @@ router.post("/getPosts", function(req, res) {
       `,function(err,rows){
         if(err) {console.log(err);return res.status(203).json({valid:false, error: 'Error'})}
         posts.shares = rows
+        console.log(result)
         return res.json({valid:true, result: posts})
       })
     })
