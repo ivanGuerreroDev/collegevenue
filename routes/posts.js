@@ -34,6 +34,7 @@ router.post("/getPosts", function(req, res) {
     normal: [],
     shares: []
   }
+  console.log(req.body)
   connection.query(`
       SELECT follow
       FROM follows
