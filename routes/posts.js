@@ -45,7 +45,7 @@ router.post("/getPosts", function(req, res) {
         if(idx == array.length - 1){friends += i['follow']}
         else{friends += i['follow']+', '}
     });
-    if(friends===''){me=req.body.user}else{me=', '+req.body.user}
+    if(friends==='' || !friends){me=req.body.user}else{me=', '+req.body.user}
     connection.query(`
         SELECT posts.id, posts.user_post, posts.date, posts.likes, posts.comments, posts.shares, posts.text, posts.media, users.firstName, users.surname, users.correo, profiles.avatar,
         IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
@@ -53,10 +53,11 @@ router.post("/getPosts", function(req, res) {
         FROM posts
         JOIN users ON posts.user_post = users.id
         JOIN profiles ON posts.user_post = profiles.user_id
-        WHERE posts.user_post IN (${friends} ${me}) 
+        WHERE posts.user_post IN (0, ${friends} ${me}) 
         ORDER BY posts.date DESC
         LIMIT ${req.body.from}, ${req.body.to}
     `,function(err,rows){
+      console.log(friends+' '+me)
       if(err) {console.log(err); return res.status(203).json({valid:false, error: 'Error'})}
       posts.normal = rows
       connection.query(`
