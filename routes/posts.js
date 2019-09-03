@@ -71,7 +71,7 @@ router.post("/getPosts", function(req, res) {
         JOIN users ON users.id = shares.user_id
         JOIN profiles ON profiles.user_id = posts.user_post
         JOIN users as uShare ON posts.user_post = uShare.id
-        WHERE posts.user_post IN (${friends} ${me}) 
+        WHERE posts.user_post IN (0, ${friends} ${me}) 
         ORDER BY posts.date DESC
         LIMIT ${req.body.from}, ${req.body.to}
       `,function(err,rows){
