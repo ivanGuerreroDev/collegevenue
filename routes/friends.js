@@ -6,19 +6,48 @@ var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
 
+router.post('/findFriend/', /*isLoggedIn,*/ function(req, res, next) {
+    connection.query(`
+        SELECT users.id, users.firstName, users.surname, users.correo, profiles.grade, profiles.avatar, 
+        profiles.university
+        FROM users 
+        JOIN profiles ON users.id = profiles.user_id
+        WHERE 
+        (
+        users.correo LIKE '%${req.body.userFind}%' OR 
+        users.firstName LIKE '%${req.body.userFind}%' OR 
+        users.surname LIKE '%${req.body.userFind}%'
+        ) AND
+        users.id != ${req.body.user}
+        AND users.id IN (SELECT friend FROM friends WHERE user_id = ${req.body.user})
+    `,function(err,rows){
+      if(err) return res.json({})
+      if(rows) return res.json(rows);              
+    }); 
+});
 router.post("/sendFriendRequest", function(req, res){
     connection.query(`
-        INSERT INTO friend_requests
-        (user_id,request)
-        VALUES (${req.body.user},${req.body.friend})  
+        SELECT * FROM friend_requests
+        WHERE user_id = ${req.body.user} AND request = ${req.body.friend} 
     `,function(err,rows){
-        if(err){ 
-            console.log(err)
-            return res.json({valid:false, error:'Error'}) 
+        if(rows[0]){
+            connection.query(`
+            INSERT INTO friend_requests
+            (user_id,request)
+            VALUES (${req.body.user},${req.body.friend})  
+            `,function(err2,rows2){
+                if(err){ 
+                    console.log(err2)
+                    return res.json({valid:false, error:'Error'}) 
+                }else{
+                    return res.json({valid:true, error:false})
+                }
+            })
         }else{
-            return res.json({valid:true, error:false})
+            return res.json({valid:false, error:'Error'}) 
         }
     })
+   
 })
 
 router.post("/deleteFriendRequest", function(req, res){

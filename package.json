@@ -124,7 +124,7 @@
   },
   "scripts": {
     "server": "nodemon app.js --exec babel-node",
-    "react": "webpack",
+    "react": "webpack -p --mode=production",
     "start": "concurrently \"npm run react\" \"npm run server\""
   }
 }

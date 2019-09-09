@@ -52,6 +52,20 @@ module.exports = function(io) {
             }
             });
         })
+        socket.on('delete chat', function (data) {
+            connection.query(`
+            DELETE FROM chats WHERE id = ${data.chat}
+            `,function(err,rows){
+            if(err){console.log(err);}
+            else{ 
+                if(rows){
+                    socket.emit('deleted chat', {
+                        id: data.id
+                    })
+                }                                   
+            }
+            });
+        })
         socket.on('connected', function(data){
         connection.query(`
             SELECT correo 

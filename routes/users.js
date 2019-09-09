@@ -12,7 +12,7 @@ router.get('/', function(req, res, next) {
   res.sendFile(path.resolve(__dirname, '..', 'public', 'index.html'));
 })
 
-router.post("/login", passport.authenticate("local"), function(req, res) {
+router.post("/login", function(req, res) {
   if(!req.body.correo){
     console.log('requiere correo')
     return res.json({
@@ -26,32 +26,47 @@ router.post("/login", passport.authenticate("local"), function(req, res) {
       message: 'Password is required',
     });
   }
-  res.json({message: 'Logged', valid:true, user:req.user});
+  connection.query("SELECT * FROM users WHERE correo = ?",req.body.correo, function(err, rows){
+    console.log(rows)
+      if (err) return res.json({message: 'Error on login', valid:false});
+      if (!rows.length) {
+          return res.json({message: 'Email not exist', valid:false});
+      }
+      if (!bcrypt.compareSync(req.body.password, rows[0].password)){
+        return res.json({message: 'Password incorrect', valid:false});
+      }
+      return res.json({message: 'Logged', valid:true, user:rows[0]});
+  });
+  
 });
 
 router.post("/register", function(req, res, next) {
   var columns = '';var values = '';var columns2 = '';var values2 = '';
-  if(req.body.greek){columns2+='greek, "';values2+=req.body.greek+'", '}
-  if(req.body.sports){columns2+='sports, "';values2+=req.body.sports+'", '}
+  if(req.body.greek){columns2+='greeklife, ';values2+='"'+req.body.greek+'", '}
+  if(req.body.sports){columns2+='sports, ';values2+='"'+req.body.sports+'", '}
   if(req.body.firstname && req.body.surname && req.body.school && req.body.password && req.body.correo){
     req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
     columns+='firstName, surname, password, correo, privilege'; 
     values+='"'+req.body.firstname+'", "'+req.body.surname+'", "'+req.body.password+'", "'+req.body.correo+'", "user"';
-    columns2+='university, ';
-    values2+='"'+req.body.school+'", '
+    
   }else{return res.json({error: 'Please fill all required fields!'})}
   connection.query(`INSERT INTO users (${columns}) VALUES (${values})`,function(err,rows){
     if(err){
-      if(err.code == 'ER_DUP_ENTRY') return res.json({error: 'Username or Email in use!'});
+      if(err.code == 'ER_DUP_ENTRY') return res.json({error: 'Email in use!'});
       console.log(err); return res.status(500);   
     }else{
+      console.log(req.body)
+      columns2+='university, ';
+      values2+='"'+req.body.school+'", '
       columns2+='user_id';
       values2+=rows.insertId;
       connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
-        if(err){return res.status(500);}
+        console.log(err2)
+        if(err2){return res.json({valid:false, notice: 'Error on register'}); ;}
         else{
           welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname);
           return res.json({valid:true, notice: 'User created'}); 
+          
         }
       })
     }                  
@@ -359,22 +374,22 @@ function sendCode(email, code){
 };
 
 function welcomeMail(email, username){
-  console.log('ejecutado ')
+  console.log('enviando email')
   let transporter = nodeMailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: 'mail.collegevenueapp.com',
     port: 465,
     secure: true,
     auth: {
-      user: 'noreplybusient@gmail.com',
-      pass: 'BuSiNeT1'
+      user: 'info@collegevenueapp.com',
+      pass: 'CollegeVenue10'
     }
   });
-  let mailOptions = {
-    from: '"Businet" <noreplybusient@gmail.com>', // sender address
+  let mailOptions = { 
+    from: '"College Venue" <noreply@collegevenueapp.com>', // sender address
     to: email, // list of receivers
     subject: "Welcome Mail", // Subject line
     text: "Welcome Mail", // plain text body
-    html: '<b>Greetings '+username+', welcome</b>' // html body
+    html: '<b>Greetings already registered '+username+', welcome.</b>' // html body
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) return console.log(error);

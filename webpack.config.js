@@ -10,7 +10,7 @@ const SRC = path.resolve(__dirname, "public");
 var port = process.env.PORT || 8080;
 var config = {
   context: path.join(__dirname, "src"),
-  devtool: debug ? "eval" : false,
+  devtool: '',
   entry: APP_DIR + "/index.js",
   watch: true,
   output: {

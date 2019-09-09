@@ -34,7 +34,6 @@ router.post("/getPosts", function(req, res) {
     normal: [],
     shares: []
   }
-  console.log(req.body)
   connection.query(`
       SELECT follow
       FROM follows
@@ -57,7 +56,6 @@ router.post("/getPosts", function(req, res) {
         ORDER BY posts.date DESC
         LIMIT ${req.body.from}, ${req.body.to}
     `,function(err,rows){
-      console.log(rows)
       if(err) {console.log(err); return res.status(203).json({valid:false, error: 'Error'})}
       posts.normal = rows
       connection.query(`
@@ -77,7 +75,6 @@ router.post("/getPosts", function(req, res) {
       `,function(err,rows){
         if(err) {console.log(err);return res.status(203).json({valid:false, error: 'Error'})}
         posts.shares = rows
-        console.log(posts)
         return res.json({valid:true, result: posts})
       })
     })
@@ -88,8 +85,8 @@ router.post('/getPostsByid', function(req, res, next) {
     // GET/users/ route
     connection.query(`
     SELECT posts.id, posts.user_post, posts.date, posts.comments,posts.shares,posts.likes,posts.text,posts.media, 
-    IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
-    IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS shared
+    IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.getUser} AND post_id = posts.id), "True","False" ) AS liked,
+    IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.getUser} AND post_id = posts.id), "True","False" ) AS shared
     FROM posts
     WHERE user_post = ${req.body.user}
     ORDER BY date DESC
@@ -125,14 +122,16 @@ router.post('/getPostsByid', function(req, res, next) {
 router.post('/getTrendingPosts', function(req, res, next) {
     // GET/users/ route
     connection.query(`
-    SELECT posts.id, posts.date, posts.comments, posts.shares, posts.likes, posts.text, posts.media, users.id, users.firstName, users.surname 
+    SELECT posts.id as id_post, posts.user_post, profiles.avatar, posts.date, posts.comments, posts.shares, posts.likes, posts.text, posts.media, users.id, users.firstName, users.surname,
+    IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
+    IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS shared
     FROM posts 
     INNER JOIN users ON posts.user_post = users.id 
+    JOIN profiles ON posts.user_post = profiles.user_id 
     WHERE posts.date <= ${req.body.dateTo} AND posts.date > ${req.body.dateFrom}
-    AND posts.likes > 0 AND posts.shares > 0 AND posts.comments > 0
     ORDER BY posts.shares DESC, posts.likes DESC, posts.comments DESC
     LIMIT ${req.body.from}, ${req.body.to}
-    `,function(err,rows){
+    `,function(err,rows){ 
       if(err){
         console.log(err)
         return res.status(203).json({valid:false, error: 'Error'})   
