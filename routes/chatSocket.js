@@ -172,5 +172,10 @@ module.exports = function(io) {
             delete resOnlineUsers[socket.id];
             //console.log(onlineUsers[socket.id]);
         });
+        socket.on('reconnect', function() {
+            onlineUsers[socket.handshake.query.id] = socket.id;
+            resOnlineUsers[socket.id] = socket.handshake.query.id;
+        });
+
     });
 }  
