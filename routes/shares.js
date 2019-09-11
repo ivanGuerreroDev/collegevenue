@@ -5,6 +5,8 @@ var passport = require('passport')
 var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
+var moment = require('moment-timezone');
+
 
 router.post("/createShare", function(req, res){
 
@@ -17,6 +19,9 @@ router.post("/createShare", function(req, res){
         i++
     };
     
+    indexs+= timestamp; 
+    values+='"'+moment().utc().valueOf()+'"';
+
     connection.query(`
         INSERT INTO shares
         (${indexs})
