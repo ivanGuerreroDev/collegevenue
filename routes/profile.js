@@ -31,18 +31,28 @@ router.get('/:id', function(req, res, next) {
 });
 
 router.post('/changeAvatar/:id', function(req, res, next) {
-  // GET/users/ route
   connection.query(`
     UPDATE profiles
     SET
     avatar = '${req.body.avatar}'
     WHERE user_id = ${req.params.id}
   `,function(err,rows){
-    console.log(rows)
     if(err){console.log(err); return res.status(500);}         
     else{return res.json({valid:true})}      
   });
 });
+router.post('/changeBg/:id', function(req, res, next) {
+  connection.query(`
+    UPDATE profiles
+    SET
+    bg = '${req.body.bg}'
+    WHERE user_id = ${req.params.id}
+  `,function(err,rows){
+    if(err){console.log(err); return res.status(500);}         
+    else{return res.json({valid:true})}      
+  });
+});
+
 router.post('/getProfileById', function(req, res, next) {
   connection.query(`
     SELECT users.firstName, users.surname, users.correo, users.id, profiles.avatar, 
@@ -128,6 +138,20 @@ router.post('/updateProfileById', function(req, res, next) {
 });
 
 router.post('/upload', (req, res) => {
+  upload(req, res, function (err) {
+      if (err instanceof multer.MulterError) {
+          console.log(err)
+          return res.status(500).json(err)
+      } else if (err) {
+          console.log(err)
+          return res.status(500).json(err)
+      }
+      
+      return res.status(200).json({valid:true, result: req.file})
+  })
+})
+
+router.post('/uploadBg', (req, res) => {
   upload(req, res, function (err) {
       if (err instanceof multer.MulterError) {
           console.log(err)
