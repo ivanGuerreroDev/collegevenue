@@ -64,7 +64,8 @@ router.post('/getProfileById', function(req, res, next) {
 
 router.post('/getLikesById', function(req,res,next){
   connection.query(`
-      SELECT posts.id, posts.user_post, posts.date, posts.comments, posts.shares, posts.likes, posts.text, posts.media, profiles.avatar, users.firstName, users.surname
+      SELECT posts.id, posts.user_post, posts.date, posts.comments, posts.shares, posts.likes, 
+      posts.text, posts.media, profiles.avatar, users.firstName, users.surname, likes.timestamp
       FROM posts
       INNER JOIN likes ON posts.id = likes.post_id AND likes.user_id = ${req.body.user}
       INNER JOIN users ON posts.user_post = users.id
