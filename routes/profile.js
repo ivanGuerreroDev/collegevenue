@@ -20,7 +20,7 @@ const upload = multer({ storage: Storage }).single('file');
 
 router.get('/:id', function(req, res, next) {
   // GET/users/ route
-  connection.query(`SELECT avatar, university, grade, follows, bio FROM profiles WHERE user_id = ${req.params.id}`,function(err,rows){
+  connection.query(`SELECT avatar, bg, university, grade, follows, bio FROM profiles WHERE user_id = ${req.params.id}`,function(err,rows){
     if(err){
      console.log(err)
      return res.status(500);   
@@ -55,7 +55,7 @@ router.post('/changeBg/:id', function(req, res, next) {
 
 router.post('/getProfileById', function(req, res, next) {
   connection.query(`
-    SELECT users.firstName, users.surname, users.correo, users.id, profiles.avatar, 
+    SELECT users.firstName, users.surname, users.correo, users.id, profiles.avatar, profiles.bg,
     profiles.university, profiles.grade, profiles.follows, profiles.bio, profiles.facebook, 
     profiles.instagram, profiles.twitter, profiles.snapchat, profiles.greeklife, profiles.sports, 
     profiles.relationship, profiles.birthdate
