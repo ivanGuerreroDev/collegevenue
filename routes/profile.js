@@ -23,13 +23,26 @@ router.get('/:id', function(req, res, next) {
   connection.query(`SELECT avatar, university, grade, follows, bio FROM profiles WHERE user_id = ${req.params.id}`,function(err,rows){
     if(err){
      console.log(err)
-     res.status(500);   
+     return res.status(500);   
     }else{
         return res.json({valid:true, profile: rows[0]}); 
     }                   
   });
 });
 
+router.post('/changeAvatar/:id', function(req, res, next) {
+  // GET/users/ route
+  connection.query(`
+    UPDATE profiles
+    SET
+    avatar = '${req.body.avatar}'
+    WHERE user_id = ${req.params.id}
+  `,function(err,rows){
+    console.log(rows)
+    if(err){console.log(err); return res.status(500);}         
+    else{return res.json({valid:true})}      
+  });
+});
 router.post('/getProfileById', function(req, res, next) {
   connection.query(`
     SELECT users.firstName, users.surname, users.correo, users.id, profiles.avatar, 
@@ -102,6 +115,7 @@ router.post('/upload', (req, res) => {
           console.log(err)
           return res.status(500).json(err)
       }
+      
       return res.status(200).json({valid:true, result: req.file})
   })
 })

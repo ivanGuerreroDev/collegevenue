@@ -30,7 +30,7 @@ router.post("/sendFriendRequest", function(req, res){
         SELECT * FROM friend_requests
         WHERE user_id = ${req.body.user} AND request = ${req.body.friend} 
     `,function(err,rows){
-        if(rows[0]){
+        if(!rows[0]){
             connection.query(`
             INSERT INTO friend_requests
             (user_id,request)
