@@ -5,7 +5,7 @@ var passport = require('passport')
 var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
-var moment = require('moment-timezone');
+var moment = require('moment');
 
 
 router.post("/createShare", function(req, res){
