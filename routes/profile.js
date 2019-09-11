@@ -61,6 +61,26 @@ router.post('/getProfileById', function(req, res, next) {
     }                   
   });
 });
+
+router.post('/getLikesById', function(req,res,next){
+  connection.query(`
+      SELECT posts.id, posts.user_post, posts.date, posts.comments, posts.shares, posts.likes, posts.text, posts.media, profiles.avatar, users.firstName, users.surname
+      FROM posts
+      INNER JOIN likes ON posts.id = likes.post_id AND likes.user_id = ${req.body.user}
+      INNER JOIN users ON posts.user_post = users.id
+      INNER JOIN profiles ON users.id = profiles.user_id
+      ORDER BY likes.timestamp DESC
+      LIMIT ${req.body.from},${req.body.to}
+    `,function(err,rows){
+      if(err)
+      {
+        return res.status(500);
+      }else{
+        return res.json({valid:true, posts: rows}); 
+      }        
+    });
+});
+
 router.post('/updateProfileById', function(req, res, next) {
   var usersQuery = ''
   if(req.body.correo){usersQuery+='correo = "'+req.body.correo+'", '}
@@ -119,6 +139,7 @@ router.post('/upload', (req, res) => {
       return res.status(200).json({valid:true, result: req.file})
   })
 })
+
 router.post('/:id', function(req, res, next) {
   var values = '';
   let i = 0;
