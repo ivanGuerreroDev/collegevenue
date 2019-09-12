@@ -10,12 +10,12 @@ var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
 
-router.post("/login",function(req,res,next){
+module.exports = function(pushToken,message){
     let messages = [];
     messages.push({
-    to: req.body.token.value,
+    to: pushToken,
     sound: 'default',
-    body: 'This is a test notification',
+    body: message,
     data: { withSome: 'data' },
     })
     let chunks = expo.chunkPushNotifications(messages);
@@ -32,7 +32,7 @@ router.post("/login",function(req,res,next){
         }
     })();
 
-})
+}
 
 
 module.exports = router;

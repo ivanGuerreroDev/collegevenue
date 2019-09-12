@@ -1,4 +1,5 @@
 var connection  = require('../config/db');
+var notify = require("./routes/notification");
 var onlineUsers = {}
 var resOnlineUsers = {}
 module.exports = function(io) {
@@ -163,7 +164,28 @@ module.exports = function(io) {
                 })
                 
             }
+
+            var token;
+            var message;
+          
+              connection.query(`
+              SELECT *
+              FROM users
+              WHERE users.id = ${data.to_user}
+              `, function(err,rows){
+              token = rows[0].pushtoken;
+                  connection.query(`
+                  SELECT users.firstname, users.surname
+                  FROM users
+                  WHERE users.id = ${data.from_user}
+                  `,function(err,rows){
+                    message = 'You got a message from '+rows[0].firstname+' '+rows[0].surname+'';
+                    notify(token,message);
+                  });
+              });
+
         });
+
         })
         socket.on('disconnect', function(socket){
             //console.log(socket+ ':me desconecte');

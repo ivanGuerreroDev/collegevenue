@@ -31,6 +31,8 @@ router.post("/login", function(req, res) {
       if (!bcrypt.compareSync(req.body.password, rows[0].password)){
         return res.json({message: 'Password incorrect', valid:false});
       }
+
+  connection.query(`UPDATE users SET pushtoken = ${req.body.tokenPush} WHERE correo = ${req.body.correo}`);
       return res.json({message: 'Logged', valid:true, user:rows[0]});
   });
   
