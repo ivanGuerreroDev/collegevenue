@@ -77,8 +77,8 @@ app.use("*", (req, res) => {
   res.sendFile(path.resolve(__dirname, "public", "index.html"));
 });
 
-server.listen(port, () => {
-  console.log('server started and listening on port ' + port);
+server.listen(8081, () => {
+  console.log('server started and listening on port ' + 8081);
 }); 
 
 process.on('SIGTERM', () => { console.log("Bye bye!"); server.close() });

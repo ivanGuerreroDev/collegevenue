@@ -10,9 +10,27 @@ var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
 
-router.get("/login",function(req,res,next){
-
-    console.log(req);
+router.post("/login",function(req,res,next){
+    let messages = [];
+    messages.push({
+    to: req.body.token,
+    sound: 'default',
+    body: 'This is a test notification',
+    data: { withSome: 'data' },
+    })
+    let chunks = expo.chunkPushNotifications(messages);
+    let tickets = [];
+    (async () => {
+        for (let chunk of chunks) {
+          try {
+            let ticketChunk = await expo.sendPushNotificationsAsync(chunk);
+            console.log(ticketChunk);
+            tickets.push(...ticketChunk);
+          } catch (error) {
+            console.error(error);
+          }
+        }
+    })();
 
 })
 
