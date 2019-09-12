@@ -5,7 +5,7 @@ var passport = require('passport')
 var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 var nodeMailer = require('nodemailer');
-var host = req.get('host');
+var host = req.hostname;
 
 router.get('/', function(req, res, next) {
   res.sendFile(path.resolve(__dirname, '..', 'public', 'index.html'));
