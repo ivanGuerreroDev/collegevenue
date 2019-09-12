@@ -5,6 +5,7 @@ var passport = require('passport')
 var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 var nodeMailer = require('nodemailer');
+var host = req.get('host');
 
 router.get('/', function(req, res, next) {
   res.sendFile(path.resolve(__dirname, '..', 'public', 'index.html'));
@@ -58,7 +59,7 @@ router.post("/register", function(req, res, next) {
       values2+='"'+req.body.school+'", '
       columns2+='user_id';
       values2+=rows.insertId;
-      code = bcrypt.hashSync(req.body.correo+req.body.username, bcrypt.genSaltSync(10), null);
+      var code = bcrypt.hashSync(req.body.correo+req.body.username, bcrypt.genSaltSync(10), null);
       connection.query(`INSERT INTO verification (email,code) values ('${req.body.correo}','${code}')`);
       welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname,code);
       connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
@@ -413,7 +414,7 @@ function welcomeMail(email, username, code){
     to: email, // list of receivers
     subject: "Welcome Mail", // Subject line
     text: "Welcome Mail", // plain text body
-    html: '<b>Greetings '+username+', Please confirm your account here: '+domain+'/confirmation/'+code+'</b>' 
+    html: '<b>Greetings '+username+', Please confirm your account here: '+host+'/confirmation/'+code+'</b>' 
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) return console.log(error);
