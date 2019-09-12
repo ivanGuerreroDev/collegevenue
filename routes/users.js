@@ -23,7 +23,7 @@ router.post("/login", function(req, res) {
       message: 'Password is required',
     });
   }
-  connection.query(`SELECT * FROM users WHERE correo = '${req.body.correo}' AND verified > 0`, function(err, rows){
+  connection.query(`SELECT * FROM users WHERE correo = '${req.body.correo}'`, function(err, rows){
       if (err) {console.log(err); return res.json({message: 'Error on login', valid:false});}
       if (!rows.length) {
           return res.json({message: 'Email not exist or is not verified', valid:false});
@@ -38,36 +38,35 @@ router.post("/login", function(req, res) {
 
 router.post("/register", function(req, res, next) {
   var host = req.protocol + '://' + req.get('host')
-  var columns = '';var values = '';var columns2 = '';var values2 = '';
-  if(req.body.greek){columns2+='greeklife, ';values2+='"'+req.body.greek+'", '}
-  if(req.body.sports){columns2+='sports, ';values2+='"'+req.body.sports+'", '}
-  if(req.body.firstname && req.body.surname && req.body.school && req.body.password && req.body.correo){
-    req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
-    columns+='firstName, surname, password, correo, privilege'; 
-    values+='"'+req.body.firstname+'", "'+req.body.surname+'", "'+req.body.password+'", "'+req.body.correo+'", "user"';
-    
-  }else{return res.json({error: 'Please fill all required fields!'})}
-  connection.query(`INSERT INTO users (${columns}) VALUES (${values})`,function(err,rows){
-    if(err){
-      if(err.code == 'ER_DUP_ENTRY') return res.json({error: 'Email in use!'});
-      console.log(err); return res.status(500);   
+  connection.query(`SELECT * FROM users WHERE correo = '${req.body.correo}'`,function(err,rows){
+    if(err) {console.log(err); return res.json({valid:false, error: 'Error on register'})}
+    else if(rows[0]){
+      return res.json({valid:false, error: 'Email already exist'})
     }else{
-      console.log(req.body)
-      columns2+='university, ';
-      values2+='"'+req.body.school+'", '
-      columns2+='user_id';
-      values2+=rows.insertId;
-      var code = bcrypt.hashSync(req.body.correo+req.body.username, bcrypt.genSaltSync(10), null);
-      connection.query(`INSERT INTO verification (email,code) values ('${req.body.correo}','${code}')`);
-      welcomeMail(req.body.correo, req.body.firstname+' '+req.body.surname, code, host);
-      connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
-        console.log(err2)
-        if(err2){return res.json({valid:false, notice: 'Error on register'}); ;}
-        else{
-          return res.json({valid:true, notice: 'User created'}); 
+      connection.query(`SELECT * FROM verification WHERE correo='${req.body.correo}'`,function(err, rows2){
+        if(err) {console.log(err); return res.json({valid:false, error: 'Error on register'})}
+        else if(rows2[0]){
+          welcomeMail(req.body.correo, req.body.firstname+' '+req.body.surname, rows2[0].code, host);
+          return res.json({valid:true})
+        }else{
+          req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
+          var columns = '', values = '';
+          for(var key in req.body){
+            columns += key+', '
+            values += `'${req.body[key]}', `
+          }
+          var code = makeid(12);
+          connection.query(`INSERT INTO verification (${columns}code) values (${values}'${code}')`,function(err,rows3){
+            if(err) {console.log(err); return res.json({valid:false, error: 'Error on register'})}
+            else{ 
+              welcomeMail(req.body.correo, req.body.firstname+' '+req.body.surname, code, host);
+              return res.json({valid:true})
+            }
+          });
+          
         }
-      })
-    }                  
+      });
+    }
   });
 });
 
@@ -281,23 +280,34 @@ router.post('/forgotPassword', function(req,res) {
 
 })
 
-router.post('/confirmation/:clave', function(req,res){
- 
+router.get('/confirmation/:clave', function(req,res){
   connection.query(`
   SELECT *
   FROM verification
   WHERE code = '${req.params.clave}' 
   `,function(err,rows){
-    if(err){
-     return res.status(500);
+    if(err){ return res.status(500);
     }else{
-      if(rows){
-        connection.query(`
-        DELETE FROM verification WHERE code = '${req.params.clave}'
-        `)
-        return res.json({valid:true, notice: 'You are now registered!'})
-      }else{
-        return res.status(500);
+      if(rows[0]){
+        connection.query(`DELETE FROM verification WHERE code = '${req.params.clave}'`)
+        var columns = 'firstName, surname, correo, password, privilege';
+        var values = `'${rows[0].firstName}', '${rows[0].surname}', '${rows[0].correo}', '${rows[0].password}', 'user'`;
+        var columns2 = 'university'
+        var values2 = `'${rows[0].school}'`
+        if(rows[0].greek) {columns2 += ', greeklife'; values2+=`, '${rows[0].greek}'`}
+        if(rows[0].sports) {columns2 += ', sports'; values2+=`, '${rows[0].sports}'`}
+        connection.query(`INSERT INTO users (${columns}) VALUES (${values})`,function(err, rows2){
+          if(err){ return res.status(500);}
+          else{
+            columns2+=', user_id'; values2+=', '+rows2.insertId;
+            connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err, rows3){
+              if(err){ console.log(err); return res.status(500);}
+              else{return res.send('You are now registered!')}
+            })
+          }
+        })
+      }else{ 
+        return res.send('Error on verification')
       }
     }
           
@@ -412,7 +422,7 @@ function welcomeMail(email, username, code, host){
     to: email, // list of receivers
     subject: "Welcome Mail", // Subject line
     text: "Welcome Mail", // plain text body
-    html: '<b>Greetings '+username+', Please confirm your account here: '+host+'/confirmation/'+code+'</b>' 
+    html: '<b>Greetings '+username+', Please confirm your account here: <a href="'+host+'/api/confirmation/'+code+'">click here</a></b>' 
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) return console.log(error);
