@@ -33,6 +33,3 @@ module.exports = function(pushToken,message){
     })();
 
 }
-
-
-module.exports = router;
