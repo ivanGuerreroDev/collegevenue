@@ -13,7 +13,7 @@ import multer from 'multer';
 router.post("/login",function(req,res,next){
     let messages = [];
     messages.push({
-    to: req.body.token,
+    to: req.body.token.value,
     sound: 'default',
     body: 'This is a test notification',
     data: { withSome: 'data' },
