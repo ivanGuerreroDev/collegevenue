@@ -23,9 +23,8 @@ router.post("/login", function(req, res) {
       message: 'Password is required',
     });
   }
-  connection.query(`SELECT * FROM users WHERE correo = ${req.body.user} AND verified > 0`,req.body.correo, function(err, rows){
-    console.log(rows)
-      if (err) return res.json({message: 'Error on login', valid:false});
+  connection.query(`SELECT * FROM users WHERE correo = ${req.body.correo} AND verified > 0`, function(err, rows){
+      if (err) {console.log(err); return res.json({message: 'Error on login', valid:false});}
       if (!rows.length) {
           return res.json({message: 'Email not exist or is not verified', valid:false});
       }

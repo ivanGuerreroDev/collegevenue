@@ -127,5 +127,10 @@
     "server": "nodemon app.js --exec babel-node",
     "react": "webpack -p --mode=production",
     "start": "concurrently \"npm run react\" \"npm run server\""
-  }
+  },
+  "events": {
+    "restart": "kill-port 8081",
+    "crash": "kill-port 8081"
+  },
+  "delay": "1500"
 }
