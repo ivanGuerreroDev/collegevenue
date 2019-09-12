@@ -134,23 +134,22 @@ router.post('/getTrendingPosts', function(req, res, next) {
     LEFT JOIN 
         ( SELECT posts.id, COUNT(likes.id) AS likerino
         FROM posts
-        INNER JOIN likes ON posts.id = likes.post_id AND likes.timestamp >= ${req.body.dateTo} AND likes.timestamp < ${req.body.dateFrom}
+        INNER JOIN likes ON posts.id = likes.post_id AND likes.timestamp >= ${req.body.dateFrom} AND likes.timestamp < ${req.body.dateTo}
         GROUP BY posts.id ) AS likeCount ON likeCount.id = posts.id
     LEFT JOIN 
         ( SELECT posts.id, COUNT(comments.id) AS commenterino
         FROM posts
-        INNER JOIN comments ON posts.id = comments.post_id AND comments.date >= ${req.body.dateTo} AND comments.date < ${req.body.dateFrom}
+        INNER JOIN comments ON posts.id = comments.post_id AND comments.date >= ${req.body.dateFrom} AND comments.date < ${req.body.dateTo}
         GROUP BY posts.id ) AS commentsCount ON commentsCount.id = posts.id
     LEFT JOIN 
         ( SELECT posts.id, COUNT(shares.id) AS sharerino
         FROM posts
-        INNER JOIN shares ON posts.id = shares.post_id AND shares.timestamp >= ${req.body.dateTo} AND shares.timestamp < ${req.body.dateFrom}
+        INNER JOIN shares ON posts.id = shares.post_id AND shares.timestamp >= ${req.body.dateFrom} AND shares.timestamp < ${req.body.dateTo}
         GROUP BY posts.id ) AS sharesCount ON sharesCount.id = posts.id
     LEFT JOIN users ON posts.user_post = users.id
     ORDER BY interaccion DESC
     LIMIT ${req.body.from}, ${req.body.to}
     `,function(err,rows){ 
-      console.log(rows)
       if(err){
         console.log(err)
         return res.status(203).json({valid:false, error: 'Error'})   
