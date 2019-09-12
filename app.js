@@ -49,6 +49,9 @@ const follows = require("./routes/follows");
 app.use("/api/follows", follows);
 const friends = require("./routes/friends");
 app.use("/api/friends", friends);
+const notifications = require("./routes/notification");
+app.use("/api/notifications", notifications);
+
 
 // SOCKET CHAT
 

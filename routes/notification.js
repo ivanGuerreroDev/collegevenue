@@ -10,7 +10,7 @@ var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
 
-router.get("/notification",function(req,res,next){
+router.get("/login",function(req,res,next){
 
     console.log(req);
 
