@@ -127,10 +127,11 @@ router.post('/getTrendingPosts', function(req, res, next) {
     ( IF(likeCount.likerino>0, likeCount.likerino,0) + 
     IF(commentsCount.commenterino>0, commentsCount.commenterino,0) + 
     IF(sharesCount.sharerino>0, sharesCount.sharerino,0) ) AS interaccion,
-     users.id, users.firstName, users.surname,
+     users.id, users.firstName, users.surname, profiles.avatar,
     IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
     IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS shared
     FROM posts
+    JOIN profiles ON posts.user_post = profiles.user_id
     LEFT JOIN 
         ( SELECT posts.id, COUNT(likes.id) AS likerino
         FROM posts
