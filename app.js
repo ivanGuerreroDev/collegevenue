@@ -79,7 +79,7 @@ server.listen(port, () => {
   console.log('server started and listening on port ' + port);
 }); 
 
-process.on('exit', () => { console.log("Bye bye!"); server.close() });
+process.on('SIGTERM', () => { console.log("Bye bye!"); server.close() });
 
 
  

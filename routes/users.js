@@ -5,7 +5,6 @@ var passport = require('passport')
 var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 var nodeMailer = require('nodemailer');
-var host = req.get('host');
 
 router.get('/', function(req, res, next) {
   res.sendFile(path.resolve(__dirname, '..', 'public', 'index.html'));
@@ -40,6 +39,7 @@ router.post("/login", function(req, res) {
 });
 
 router.post("/register", function(req, res, next) {
+  var host = req.protocol + '://' + req.get('host')
   var columns = '';var values = '';var columns2 = '';var values2 = '';
   if(req.body.greek){columns2+='greeklife, ';values2+='"'+req.body.greek+'", '}
   if(req.body.sports){columns2+='sports, ';values2+='"'+req.body.sports+'", '}
@@ -61,7 +61,7 @@ router.post("/register", function(req, res, next) {
       values2+=rows.insertId;
       var code = bcrypt.hashSync(req.body.correo+req.body.username, bcrypt.genSaltSync(10), null);
       connection.query(`INSERT INTO verification (email,code) values ('${req.body.correo}','${code}')`);
-      welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname,code);
+      welcomeMail(req.body.correo, req.body.firstname+' '+req.body.surname, code, host);
       connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
         console.log(err2)
         if(err2){return res.json({valid:false, notice: 'Error on register'}); ;}
@@ -284,7 +284,7 @@ router.post('/forgotPassword', function(req,res) {
 })
 
 router.post('/confirmation/:clave', function(req,res){
-
+ 
   connection.query(`
   SELECT *
   FROM verification
@@ -398,7 +398,7 @@ function sendCode(email, code){
   });
 };
 
-function welcomeMail(email, username, code){
+function welcomeMail(email, username, code, host){
   console.log('enviando email')
   let transporter = nodeMailer.createTransport({
     host: 'mail.collegevenueapp.com',
