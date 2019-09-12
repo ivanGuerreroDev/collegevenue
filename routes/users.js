@@ -321,7 +321,6 @@ router.get('/confirmation/:clave', function(req,res){
   `,function(err,rows){
     if(err){ return res.status(500);
     }else{
-<<<<<<< HEAD
       if(rows[0]){
         connection.query(`DELETE FROM verification WHERE code = '${req.params.clave}'`)
         var columns = 'firstName, surname, correo, password, privilege';
@@ -342,34 +341,6 @@ router.get('/confirmation/:clave', function(req,res){
         })
       }else{ 
         return res.send('Error on verification')
-=======
-      if(rows){
-        var columns ='firstName, surname, password, email';
-        var values ='"'+rows[0].firstname+'", "'+rows[0].surname+'", "'+rows[0].password+'", "'+rows[0].correo+'"';
-        var columns2 = 'university, user_id'
-        var values2 = "'"+rows[0].university+"'";
-
-          connection.query(`INSERT INTO users (${columns}) VALUES (${values})`, function(err,rows){
-            if(err){
-              return res.json({valid:false, notice: 'Error on register'});
-            }else{
-              values2 = ", '"+rows.insertId;+"'"; 
-                connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
-                  console.log(err2)
-                  if(err2){return res.json({valid:false, notice: 'Error on register'}); }
-                  else{
-                    return res.json({valid:true, notice: 'User created'}); 
-                  }
-                })
-            }
-          });
-        connection.query(`
-        DELETE FROM verification WHERE code = '${req.params.clave}'
-        `)
-        return res.json({valid:true, notice: 'You are now registered!'})
-      }else{
-        return res.status(500);
->>>>>>> c94f75455a762869a3bcaf4e162f7012896b16e0
       }
     } 
   })
