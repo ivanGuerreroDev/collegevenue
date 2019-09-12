@@ -16,7 +16,7 @@ module.exports = function(pushToken,message){
     to: pushToken,
     sound: 'default',
     body: message,
-    data: { withSome: 'data' },
+    data: { withSome: 'data' }
     })
     let chunks = expo.chunkPushNotifications(messages);
     let tickets = [];
