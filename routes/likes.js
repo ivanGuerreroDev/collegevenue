@@ -6,7 +6,7 @@ var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 var moment = require('moment');
 import multer from 'multer';
-var notify = require("./routes/notification");
+var notify = require("./notification");
 
 router.post("/createLike", function(req, res){
 

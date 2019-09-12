@@ -5,7 +5,7 @@ var passport = require('passport')
 var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
-var notify = require("./routes/notification");
+var notify = require("./notification");
 
 
 router.post("/createComment", function(req, res){

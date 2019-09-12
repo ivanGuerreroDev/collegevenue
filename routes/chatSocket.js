@@ -1,5 +1,5 @@
 var connection  = require('../config/db');
-var notify = require("./routes/notification");
+var notify = require("./notification");
 var onlineUsers = {}
 var resOnlineUsers = {}
 module.exports = function(io) {
@@ -174,7 +174,7 @@ module.exports = function(io) {
               FROM users
               WHERE users.id = ${data.to_user}
               `, function(err,rows){
-              token = rows[0].pushtoken;
+                token = rows[0].pushtoken;
                   connection.query(`
                   SELECT users.firstname, users.surname, profiles.avatar
                   FROM users

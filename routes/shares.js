@@ -6,7 +6,7 @@ var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
 var moment = require('moment');
-var notify = require("./routes/notification");
+var notify = require("./notification");
 
 router.post("/createShare", function(req, res){
 
