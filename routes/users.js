@@ -38,7 +38,6 @@ router.post("/login", function(req, res) {
 
 router.post("/register", function(req, res, next) {
   var host = req.protocol + '://' + req.get('host')
-<<<<<<< HEAD
   connection.query(`SELECT * FROM users WHERE correo = '${req.body.correo}'`,function(err,rows){
     if(err) {console.log(err); return res.json({valid:false, error: 'Error on register'})}
     else if(rows[0]){
@@ -69,37 +68,6 @@ router.post("/register", function(req, res, next) {
       });
     }
   });
-=======
-  var columns = '';var values = '';var columns2 = '';var values2 = '';
-  if(req.body.greek){columns2+='greeklife, ';values2+='"'+req.body.greek+'", '}
-  if(req.body.sports){columns2+='sports, ';values2+='"'+req.body.sports+'", '}
-  if(req.body.firstname && req.body.surname && req.body.school && req.body.password && req.body.correo){
-    req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
-    var code = bcrypt.hashSync(req.body.correo+req.body.username, bcrypt.genSaltSync(10), null);
-    columns+='firstName, surname, password, email, code, university'; 
-    values+='"'+req.body.firstname+'", "'+req.body.surname+'", "'+req.body.password+'", "'+req.body.correo+'", "'+code+'", "'+req.body.school+'"';
-    
-  }else{return res.json({error: 'Please fill all required fields!'})}
-  connection.query(`SELECT * FROM users WHERE correo = ${req.body.correo}`,function(err,rows){
-    if(err){
-      return res.status(500); 
-    }else{
-      if(rows){
-        return res.json({valid:false, notice: 'User already exists'}); 
-      }else{
-        connection.query(`INSERT INTO verification (${columns}) VALUES (${values})`,function(err,rows){
-          if(err){
-            if(err.code == 'ER_DUP_ENTRY') return res.json({error: 'Email in use!'});
-            console.log(err); return res.status(500);   
-          }else{
-            welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname,code);
-            
-          }                  
-        });
-      }
-    }
-  })
->>>>>>> c94f75455a762869a3bcaf4e162f7012896b16e0
 });
 
 
