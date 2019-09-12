@@ -58,13 +58,13 @@ router.post("/register", function(req, res, next) {
       values2+='"'+req.body.school+'", '
       columns2+='user_id';
       values2+=rows.insertId;
+      code = bcrypt.hashSync(req.body.correo+req.body.username, bcrypt.genSaltSync(10), null);
+      connection.query(`INSERT INTO verification (email,code) values ('${req.body.correo}','${code}')`);
+      welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname,code);
       connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
         console.log(err2)
         if(err2){return res.json({valid:false, notice: 'Error on register'}); ;}
         else{
-          code = bcrypt.hashSync(req.body.correo+req.body.username, bcrypt.genSaltSync(10), null);
-          connection.query(`INSERT INTO verification (user_id,code) values (${rows.insertId},${code})`);
-          welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname,code);
           return res.json({valid:true, notice: 'User created'}); 
         }
       })
