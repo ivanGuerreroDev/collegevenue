@@ -5,8 +5,6 @@ var passport = require('passport')
 var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 var nodeMailer = require('nodemailer');
-var host = req.hostname;
-
 router.get('/', function(req, res, next) {
   res.sendFile(path.resolve(__dirname, '..', 'public', 'index.html'));
 })
@@ -25,9 +23,8 @@ router.post("/login", function(req, res) {
       message: 'Password is required',
     });
   }
-  connection.query(`SELECT * FROM users WHERE correo = ${req.body.user} AND verified > 0`,req.body.correo, function(err, rows){
-    console.log(rows)
-      if (err) return res.json({message: 'Error on login', valid:false});
+  connection.query(`SELECT * FROM users WHERE correo = '${req.body.correo}' AND verified > 0`, function(err, rows){
+      if (err) {console.log(err); return res.json({message: 'Error on login', valid:false});}
       if (!rows.length) {
           return res.json({message: 'Email not exist or is not verified', valid:false});
       }
@@ -40,6 +37,7 @@ router.post("/login", function(req, res) {
 });
 
 router.post("/register", function(req, res, next) {
+  var host = req.protocol + '://' + req.get('host')
   var columns = '';var values = '';var columns2 = '';var values2 = '';
   if(req.body.greek){columns2+='greeklife, ';values2+='"'+req.body.greek+'", '}
   if(req.body.sports){columns2+='sports, ';values2+='"'+req.body.sports+'", '}
@@ -63,21 +61,14 @@ router.post("/register", function(req, res, next) {
             console.log(err); return res.status(500);   
           }else{
             welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname,code);
-            /*
-            connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
-              console.log(err2)
-              if(err2){return res.json({valid:false, notice: 'Error on register'}); ;}
-              else{
-                return res.json({valid:true, notice: 'User created'}); 
-              }
-            })
-            */
+            
           }                  
         });
       }
     }
   })
 });
+
 
 
 router.get('/users', isLoggedIn, function(req, res, next) {
@@ -290,7 +281,7 @@ router.post('/forgotPassword', function(req,res) {
 })
 
 router.post('/confirmation/:clave', function(req,res){
-
+ 
   connection.query(`
   SELECT *
   FROM verification
@@ -309,7 +300,7 @@ router.post('/confirmation/:clave', function(req,res){
             if(err){
               return res.json({valid:false, notice: 'Error on register'});
             }else{
-              values2 = ", '"+rows[0].user_id+"'"; 
+              values2 = ", '"+rows.insertId;+"'"; 
                 connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
                   console.log(err2)
                   if(err2){return res.json({valid:false, notice: 'Error on register'}); }
@@ -326,11 +317,8 @@ router.post('/confirmation/:clave', function(req,res){
       }else{
         return res.status(500);
       }
-    }
-          
+    } 
   })
-  
-
 })
 
 router.post('/changePassword', function(req,res) {
@@ -423,7 +411,7 @@ function sendCode(email, code){
   });
 };
 
-function welcomeMail(email, username, code){
+function welcomeMail(email, username, code, host){
   console.log('enviando email')
   let transporter = nodeMailer.createTransport({
     host: 'mail.collegevenueapp.com',
