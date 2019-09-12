@@ -10,9 +10,18 @@ var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
 
-router.get("/login",function(req,res,next){
+router.post("/login",function(req,res,next){
 
-    console.log(req);
+    console.log(req.body.token.value);
+
+    pushToken = req.body.token.value;
+
+    messages.push({
+        to: pushToken,
+        sound: 'default',
+        body: 'This is a test notification',
+        data: { withSome: 'data' },
+      });
 
 })
 
