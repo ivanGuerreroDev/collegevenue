@@ -38,6 +38,7 @@ router.post("/login", function(req, res) {
 
 router.post("/register", function(req, res, next) {
   var host = req.protocol + '://' + req.get('host')
+<<<<<<< HEAD
   connection.query(`SELECT * FROM users WHERE correo = '${req.body.correo}'`,function(err,rows){
     if(err) {console.log(err); return res.json({valid:false, error: 'Error on register'})}
     else if(rows[0]){
@@ -68,7 +69,39 @@ router.post("/register", function(req, res, next) {
       });
     }
   });
+=======
+  var columns = '';var values = '';var columns2 = '';var values2 = '';
+  if(req.body.greek){columns2+='greeklife, ';values2+='"'+req.body.greek+'", '}
+  if(req.body.sports){columns2+='sports, ';values2+='"'+req.body.sports+'", '}
+  if(req.body.firstname && req.body.surname && req.body.school && req.body.password && req.body.correo){
+    req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
+    var code = bcrypt.hashSync(req.body.correo+req.body.username, bcrypt.genSaltSync(10), null);
+    columns+='firstName, surname, password, email, code, university'; 
+    values+='"'+req.body.firstname+'", "'+req.body.surname+'", "'+req.body.password+'", "'+req.body.correo+'", "'+code+'", "'+req.body.school+'"';
+    
+  }else{return res.json({error: 'Please fill all required fields!'})}
+  connection.query(`SELECT * FROM users WHERE correo = ${req.body.correo}`,function(err,rows){
+    if(err){
+      return res.status(500); 
+    }else{
+      if(rows){
+        return res.json({valid:false, notice: 'User already exists'}); 
+      }else{
+        connection.query(`INSERT INTO verification (${columns}) VALUES (${values})`,function(err,rows){
+          if(err){
+            if(err.code == 'ER_DUP_ENTRY') return res.json({error: 'Email in use!'});
+            console.log(err); return res.status(500);   
+          }else{
+            welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname,code);
+            
+          }                  
+        });
+      }
+    }
+  })
+>>>>>>> c94f75455a762869a3bcaf4e162f7012896b16e0
 });
+
 
 
 router.get('/users', isLoggedIn, function(req, res, next) {
@@ -288,6 +321,7 @@ router.get('/confirmation/:clave', function(req,res){
   `,function(err,rows){
     if(err){ return res.status(500);
     }else{
+<<<<<<< HEAD
       if(rows[0]){
         connection.query(`DELETE FROM verification WHERE code = '${req.params.clave}'`)
         var columns = 'firstName, surname, correo, password, privilege';
@@ -308,12 +342,37 @@ router.get('/confirmation/:clave', function(req,res){
         })
       }else{ 
         return res.send('Error on verification')
-      }
-    }
-          
-  })
-  
+=======
+      if(rows){
+        var columns ='firstName, surname, password, email';
+        var values ='"'+rows[0].firstname+'", "'+rows[0].surname+'", "'+rows[0].password+'", "'+rows[0].correo+'"';
+        var columns2 = 'university, user_id'
+        var values2 = "'"+rows[0].university+"'";
 
+          connection.query(`INSERT INTO users (${columns}) VALUES (${values})`, function(err,rows){
+            if(err){
+              return res.json({valid:false, notice: 'Error on register'});
+            }else{
+              values2 = ", '"+rows.insertId;+"'"; 
+                connection.query(`INSERT INTO profiles (${columns2}) VALUES (${values2})`,function(err2,rows2){
+                  console.log(err2)
+                  if(err2){return res.json({valid:false, notice: 'Error on register'}); }
+                  else{
+                    return res.json({valid:true, notice: 'User created'}); 
+                  }
+                })
+            }
+          });
+        connection.query(`
+        DELETE FROM verification WHERE code = '${req.params.clave}'
+        `)
+        return res.json({valid:true, notice: 'You are now registered!'})
+      }else{
+        return res.status(500);
+>>>>>>> c94f75455a762869a3bcaf4e162f7012896b16e0
+      }
+    } 
+  })
 })
 
 router.post('/changePassword', function(req,res) {
