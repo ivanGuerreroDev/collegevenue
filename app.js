@@ -2,6 +2,7 @@ import express from "express";
 import path from "path";
 import bodyParser from "body-parser";
 import dotenv from "dotenv";
+import Expo from 'expo-server-sdk';
 var cors = require('cors');
 var session  = require('express-session');
 var cookieParser = require('cookie-parser');
@@ -13,8 +14,26 @@ dotenv.config();
 const app = express();
 var http = require('http');
 const server = http.createServer(app);
+let expo = new Expo();
 
+let messages = [];
+for (let pushToken of somePushTokens) {
+  // Each push token looks like ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]
 
+  // Check that all your push tokens appear to be valid Expo push tokens
+  if (!Expo.isExpoPushToken(pushToken)) {
+    console.error(`Push token ${pushToken} is not a valid Expo push token`);
+    continue;
+  }
+
+  // Construct a message (see https://docs.expo.io/versions/latest/guides/push-notifications.html)
+  messages.push({
+    to: pushToken,
+    sound: 'default',
+    body: 'This is a test notification',
+    data: { withSome: 'data' },
+  })
+}
 
 app.use(cors())
 require('./config/passport')(passport); // pass passport for configuration
