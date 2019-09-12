@@ -1,5 +1,5 @@
 var connection  = require('../config/db');
-var notify = require("./routes/notification");
+var notify = require("./notification");
 var onlineUsers = {}
 var resOnlineUsers = {}
 module.exports = function(io) {
