@@ -61,7 +61,7 @@ module.exports = function(io) {
             else{ 
                 if(rows){
                     socket.emit('deleted chat', {
-                        id: data.id
+                        id: data.chat
                     })
                 }                                   
             }
