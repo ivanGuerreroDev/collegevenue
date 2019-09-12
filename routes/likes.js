@@ -17,8 +17,8 @@ router.post("/createLike", function(req, res){
         if(i != Object.keys(req.body).length-1){values += ', '; indexs+= ', ';}
         i++
     };
-    indexs+= timestamp; 
-    values+='"'+moment().utc().valueOf()+'"';
+    indexs+= ', timestamp'; 
+    values+=', "'+moment().utc().valueOf()+'"';
     connection.query(`
         INSERT INTO likes
         (${indexs})

@@ -122,11 +122,12 @@ router.post('/getPostsByid', function(req, res, next) {
 router.post('/getTrendingPosts', function(req, res, next) {
     // GET/users/ route
     connection.query(`
-    SELECT posts.id, posts.user_post, posts.date, posts.comments, posts.shares, posts.likes, posts.text, posts.media, 
-    IF(likeCount.likerino>0, likeCount.likerino,0) + 
+    SELECT posts.id, posts.user_post, posts.date, posts.comments, posts.shares, posts.likes, posts.text, 
+    posts.media, 
+    ( IF(likeCount.likerino>0, likeCount.likerino,0) + 
     IF(commentsCount.commenterino>0, commentsCount.commenterino,0) + 
-    IF(sharesCount.sharerino>0, sharesCount.sharerino,0) AS interaccion, 
-    users.id, users.firstName, users.surname,
+    IF(sharesCount.sharerino>0, sharesCount.sharerino,0) ) AS interaccion,
+     users.id, users.firstName, users.surname,
     IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
     IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS shared
     FROM posts
@@ -149,6 +150,7 @@ router.post('/getTrendingPosts', function(req, res, next) {
     ORDER BY interaccion DESC
     LIMIT ${req.body.from}, ${req.body.to}
     `,function(err,rows){ 
+      console.log(rows)
       if(err){
         console.log(err)
         return res.status(203).json({valid:false, error: 'Error'})   
