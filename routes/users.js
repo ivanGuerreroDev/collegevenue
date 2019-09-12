@@ -6,8 +6,6 @@ var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 var nodeMailer = require('nodemailer');
 
-
-
 router.get('/', function(req, res, next) {
   res.sendFile(path.resolve(__dirname, '..', 'public', 'index.html'));
 })
@@ -26,11 +24,11 @@ router.post("/login", function(req, res) {
       message: 'Password is required',
     });
   }
-  connection.query("SELECT * FROM users WHERE correo = ?",req.body.correo, function(err, rows){
+  connection.query(`SELECT * FROM users WHERE correo = ${req.body.user} AND verified > 0`,req.body.correo, function(err, rows){
     console.log(rows)
       if (err) return res.json({message: 'Error on login', valid:false});
       if (!rows.length) {
-          return res.json({message: 'Email not exist', valid:false});
+          return res.json({message: 'Email not exist or is not verified', valid:false});
       }
       if (!bcrypt.compareSync(req.body.password, rows[0].password)){
         return res.json({message: 'Password incorrect', valid:false});
@@ -64,9 +62,10 @@ router.post("/register", function(req, res, next) {
         console.log(err2)
         if(err2){return res.json({valid:false, notice: 'Error on register'}); ;}
         else{
-          welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname);
+          code = bcrypt.hashSync(req.body.correo+req.body.username, bcrypt.genSaltSync(10), null);
+          connection.query(`INSERT INTO verification (user_id,code) values (${rows.insertId},${code})`);
+          welcomeMail(req.body.correo,req.body.firstname+' '+req.body.surname,code);
           return res.json({valid:true, notice: 'User created'}); 
-          
         }
       })
     }                  
@@ -283,6 +282,31 @@ router.post('/forgotPassword', function(req,res) {
 
 })
 
+router.post('/confirmation/:clave', function(req,res){
+
+  connection.query(`
+  SELECT *
+  FROM verification
+  WHERE code = '${req.params.clave}' 
+  `,function(err,rows){
+    if(err){
+     return res.status(500);
+    }else{
+      if(rows){
+        connection.query(`
+        DELETE FROM verification WHERE code = '${req.params.clave}'
+        `)
+        return res.json({valid:true, notice: 'You are now registered!'})
+      }else{
+        return res.status(500);
+      }
+    }
+          
+  })
+  
+
+})
+
 router.post('/changePassword', function(req,res) {
   console.log(req.body)
   req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
@@ -373,7 +397,7 @@ function sendCode(email, code){
   });
 };
 
-function welcomeMail(email, username){
+function welcomeMail(email, username, code){
   console.log('enviando email')
   let transporter = nodeMailer.createTransport({
     host: 'mail.collegevenueapp.com',
@@ -389,7 +413,7 @@ function welcomeMail(email, username){
     to: email, // list of receivers
     subject: "Welcome Mail", // Subject line
     text: "Welcome Mail", // plain text body
-    html: '<b>Greetings already registered '+username+', welcome.</b>' // html body
+    html: '<b>Greetings '+username+', Please confirm your account here: '+domain+'/confirmation/'+code+'</b>' 
   };
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) return console.log(error);
