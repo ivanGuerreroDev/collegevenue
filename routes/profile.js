@@ -34,7 +34,7 @@ router.post('/changeAvatar/:id', function(req, res, next) {
   connection.query(`
     UPDATE profiles
     SET
-    avatar = '${req.body.avatar}'
+    avatar = '${req.body.image}'
     WHERE user_id = ${req.params.id}
   `,function(err,rows){
     if(err){console.log(err); return res.status(500);}         
@@ -45,7 +45,7 @@ router.post('/changeBg/:id', function(req, res, next) {
   connection.query(`
     UPDATE profiles
     SET
-    bg = '${req.body.bg}'
+    bg = '${req.body.image}'
     WHERE user_id = ${req.params.id}
   `,function(err,rows){
     if(err){console.log(err); return res.status(500);}         
