@@ -167,6 +167,7 @@ module.exports = function(io) {
 
             var token;
             var message;
+            var data;
           
               connection.query(`
               SELECT *
@@ -175,12 +176,17 @@ module.exports = function(io) {
               `, function(err,rows){
               token = rows[0].pushtoken;
                   connection.query(`
-                  SELECT users.firstname, users.surname
+                  SELECT users.firstname, users.surname, profiles.avatar
                   FROM users
-                  WHERE users.id = ${data.from_user}
+                  INNER JOIN profiles ON profiles.user_id = users.id
+                  AND users.id = ${data.from_user}
                   `,function(err,rows){
                     message = 'You got a message from '+rows[0].firstname+' '+rows[0].surname+'';
-                    notify(token,message);
+                    data = {
+                        time: data.timestamp,
+                        avatar: rows[0].avatar
+                      }
+                    notify(token,message,data);
                   });
               });
 

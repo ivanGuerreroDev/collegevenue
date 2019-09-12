@@ -10,13 +10,13 @@ var connection  = require('../config/db');
 var bcrypt = require('bcrypt');
 import multer from 'multer';
 
-module.exports = function(pushToken,message){
+module.exports = function(pushToken,message, data){
     let messages = [];
     messages.push({
     to: pushToken,
     sound: 'default',
     body: message,
-    data: { withSome: 'data' }
+    data: data
     })
     let chunks = expo.chunkPushNotifications(messages);
     let tickets = [];

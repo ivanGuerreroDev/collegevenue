@@ -8,8 +8,6 @@ import multer from 'multer';
 var moment = require('moment');
 var notify = require("./routes/notification");
 
-
-
 router.post("/createShare", function(req, res){
 
     var values = '', indexs = '';
@@ -35,6 +33,7 @@ router.post("/createShare", function(req, res){
 
           var token;
           var message;
+          var data;
         
             connection.query(`
             SELECT *
@@ -45,12 +44,17 @@ router.post("/createShare", function(req, res){
             `, function(err,rows){
             token = rows[0].pushtoken;
                 connection.query(`
-                SELECT users.firstname, users.surname
+                SELECT users.firstname, users.surname, profiles.avatar
                 FROM users
-                WHERE users.id = ${req.body.user_id}
+                INNER JOIN profiles ON profiles.user_id = users.id
+                AND users.id = ${req.body.user_id}
                 `,function(err,rows){
                   message = ''+rows[0].firstname+' '+rows[0].surname+' shared your post';
-                  notify(token,message);
+                  data = {
+                    time: req.body.timestamp,
+                    avatar: rows[0].avatar
+                  }
+                  notify(token,message,data);
                 });
             });
 
