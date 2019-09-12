@@ -173,7 +173,7 @@ module.exports = function(io) {
               FROM users
               WHERE users.id = ${data.to_user}
               `, function(err,rows){
-              token = rows[0].pushtoken;
+                token = rows[0].pushtoken;
                   connection.query(`
                   SELECT users.firstname, users.surname
                   FROM users
