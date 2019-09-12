@@ -122,27 +122,30 @@ router.post('/getPostsByid', function(req, res, next) {
 router.post('/getTrendingPosts', function(req, res, next) {
     // GET/users/ route
     connection.query(`
-    SELECT posts.id, posts.user_post, posts.date, posts.comments, posts.shares, posts.likes, posts.text, posts.media, likeCount.likerino + commentsCount.commenterino + sharesCount.sharerino AS interaccion, users.id, users.firstName, users.surname,
+    SELECT posts.id, posts.user_post, posts.date, posts.comments, posts.shares, posts.likes, posts.text, posts.media, 
+    IF(likeCount.likerino>0, likeCount.likerino,0) + 
+    IF(commentsCount.commenterino>0, commentsCount.commenterino,0) + 
+    IF(sharesCount.sharerino>0, sharesCount.sharerino,0) AS interaccion, 
+    users.id, users.firstName, users.surname,
     IF(EXISTS (SELECT * FROM likes WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS liked,
     IF(EXISTS (SELECT * FROM shares WHERE user_id = ${req.body.user} AND post_id = posts.id), "True","False" ) AS shared
     FROM posts
-    INNER JOIN 
+    LEFT JOIN 
         ( SELECT posts.id, COUNT(likes.id) AS likerino
         FROM posts
-        INNER JOIN likes ON posts.id = likes.post_id AND likes.timestamp >= ${req.body.dateFrom} AND likes.timestamp < ${req.body.dateTo}
+        INNER JOIN likes ON posts.id = likes.post_id AND likes.timestamp >= ${req.body.dateTo} AND likes.timestamp < ${req.body.dateFrom}
         GROUP BY posts.id ) AS likeCount ON likeCount.id = posts.id
-    INNER JOIN 
+    LEFT JOIN 
         ( SELECT posts.id, COUNT(comments.id) AS commenterino
         FROM posts
-        INNER JOIN comments ON posts.id = comments.post_id AND comments.date >= ${req.body.dateFrom} AND comments.date < ${req.body.dateTo}
+        INNER JOIN comments ON posts.id = comments.post_id AND comments.date >= ${req.body.dateTo} AND comments.date < ${req.body.dateFrom}
         GROUP BY posts.id ) AS commentsCount ON commentsCount.id = posts.id
-    INNER JOIN 
+    LEFT JOIN 
         ( SELECT posts.id, COUNT(shares.id) AS sharerino
         FROM posts
-        INNER JOIN shares ON posts.id = shares.post_id AND shares.timestamp >= ${req.body.dateFrom} AND shares.timestamp < ${req.body.dateTo}
+        INNER JOIN shares ON posts.id = shares.post_id AND shares.timestamp >= ${req.body.dateTo} AND shares.timestamp < ${req.body.dateFrom}
         GROUP BY posts.id ) AS sharesCount ON sharesCount.id = posts.id
-    INNER JOIN users ON posts.user_post = users.id
-    WHERE posts.date >= ${req.body.dateFrom} AND posts.date < ${req.body.dateTo}
+    LEFT JOIN users ON posts.user_post = users.id
     ORDER BY interaccion DESC
     LIMIT ${req.body.from}, ${req.body.to}
     `,function(err,rows){ 
