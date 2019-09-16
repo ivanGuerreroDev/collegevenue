@@ -48,36 +48,43 @@ router.post("/loginAdmin", passport.authenticate('login', {
 
 router.post("/register", function(req, res, next) {
   var host = req.protocol + '://' + req.get('host')
-  connection.query(`SELECT * FROM users WHERE correo = '${req.body.correo}'`,function(err,rows){
-    if(err) {console.log(err); return res.json({valid:false, error: 'Error on register'})}
-    else if(rows[0]){
-      return res.json({valid:false, error: 'Email already exist'})
-    }else{
-      connection.query(`SELECT * FROM verification WHERE correo='${req.body.correo}'`,function(err, rows2){
+  var domain = req.body.correo.substring(req.body.correo.lastIndexOf("@") +1);
+  connection.query(`SELECT * FROM domains WHERE domain = '${domain}'`,function(error,dominios){
+    if(error) {console.log(error); return res.json({valid:false, error: 'Domain of email cant be register'})}
+    else if(dominios[0]){
+      connection.query(`SELECT * FROM users WHERE correo = '${req.body.correo}'`,function(err,rows){
         if(err) {console.log(err); return res.json({valid:false, error: 'Error on register'})}
-        else if(rows2[0]){
-          welcomeMail(req.body.correo, req.body.firstname+' '+req.body.surname, rows2[0].code, host);
-          return res.json({valid:true})
+        else if(rows[0]){
+          return res.json({valid:false, error: 'Email already exist'})
         }else{
-          req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
-          var columns = '', values = '';
-          for(var key in req.body){
-            columns += key+', '
-            values += `'${req.body[key]}', `
-          }
-          var code = makeid(12);
-          connection.query(`INSERT INTO verification (${columns}code) values (${values}'${code}')`,function(err,rows3){
+          connection.query(`SELECT * FROM verification WHERE correo='${req.body.correo}'`,function(err, rows2){
             if(err) {console.log(err); return res.json({valid:false, error: 'Error on register'})}
-            else{ 
-              welcomeMail(req.body.correo, req.body.firstname+' '+req.body.surname, code, host);
+            else if(rows2[0]){
+              welcomeMail(req.body.correo, req.body.firstname+' '+req.body.surname, rows2[0].code, host);
               return res.json({valid:true})
+            }else{
+              req.body.password = bcrypt.hashSync(req.body.password, bcrypt.genSaltSync(10), null);
+              var columns = '', values = '';
+              for(var key in req.body){
+                columns += key+', '
+                values += `'${req.body[key]}', `
+              }
+              var code = makeid(12);
+              connection.query(`INSERT INTO verification (${columns}code) values (${values}'${code}')`,function(err,rows3){
+                if(err) {console.log(err); return res.json({valid:false, error: 'Error on register'})}
+                else{ 
+                  welcomeMail(req.body.correo, req.body.firstname+' '+req.body.surname, code, host);
+                  return res.json({valid:true})
+                }
+              });
+              
             }
           });
-          
         }
       });
     }
-  });
+  })
+  
 });
 
 
