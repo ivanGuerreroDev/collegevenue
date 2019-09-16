@@ -51,6 +51,7 @@ router.post("/createShare", function(req, res){
                 `,function(err,rows){
                   message = ''+rows[0].firstname+' '+rows[0].surname+' shared your post';
                   data = {
+                    text: rows[0].firstname+' '+rows[0].surname+' shared your post',
                     time: req.body.timestamp,
                     avatar: rows[0].avatar
                   }

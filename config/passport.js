@@ -31,6 +31,9 @@ passport.use(new LocalStrategy(
             if (!rows.length) {
                 return done(null, false,{message: 'Email not exist'}); // req.flash is the way to set flashdata using connect-flash
             }
+            if(rows[0].privilege != 'admin'){
+                return done(null, false, {message: 'You are not admin!'});
+            }
             if (!bcrypt.compareSync(password, rows[0].password))
                 return done(null, false, {message: 'Password incorrect'}); // create the loginMessage and save it to session as flashdata
 

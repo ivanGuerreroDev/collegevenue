@@ -48,6 +48,7 @@ router.post("/createComment", function(req, res){
                 `,function(err,rows){
                   message = ''+rows[0].firstname+' '+rows[0].surname+' commented your post';
                   data = {
+                    text: rows[0].firstname+' '+rows[0].surname+' commented your post',
                     time: req.body.timestamp,
                     avatar: rows[0].avatar
                   }

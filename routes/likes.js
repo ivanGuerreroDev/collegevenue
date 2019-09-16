@@ -49,6 +49,7 @@ router.post("/createLike", function(req, res){
                 `,function(err,rows){
                   message = 'you got a like from'+rows[0].firstname+' '+rows[0].surname;
                   data = {
+                    text: 'you got a like from '+rows[0].firstname+' '+rows[0].surname+'',
                     time: req.body.timestamp,
                     avatar: rows[0].avatar
                   }

@@ -122,7 +122,7 @@ router.post('/getPostsByid', function(req, res, next) {
 router.post('/getTrendingPosts', function(req, res, next) {
     // GET/users/ route
     connection.query(`
-    SELECT posts.id, posts.user_post, posts.date, posts.comments, posts.shares, posts.likes, posts.text, 
+    SELECT posts.id as id_post, posts.user_post, posts.date, posts.comments, posts.shares, posts.likes, posts.text, 
     posts.media, 
     ( IF(likeCount.likerino>0, likeCount.likerino,0) + 
     IF(commentsCount.commenterino>0, commentsCount.commenterino,0) + 

@@ -116,81 +116,80 @@ module.exports = function(io) {
         */
         })
         socket.on('new message', function(data){
-        connection.query(`
-        INSERT INTO messages 
-        (to_user, from_user, message, timestamp)
-        VALUES
-        ( ${data.to_user}, ${data.from_user}, '${data.message}', ${data.timestamp})
-        `,function(err,rows){ 
-            if(err){
-                console.log(err);
-            }else{
-                connection.query(`
-                SELECT *
-                FROM chats 
-                WHERE (user_1 = ${data.from_user} OR user_2 = ${data.from_user}) AND (user_1 = ${data.to_user} OR user_2 = ${data.to_user})
-                `,function(err,rows2){
-                if(err){console.log(err)}
-                else{
-                    if(rows2.length == 0){
+            var datos = data;
+            connection.query(`
+            INSERT INTO messages 
+            (to_user, from_user, message, timestamp)
+            VALUES
+            ( ${datos.to_user}, ${datos.from_user}, '${datos.message}', ${datos.timestamp})
+            `,function(err,rows){ 
+                if(err){
+                    console.log(err);
+                }else{
                     connection.query(`
-                    INSERT INTO chats
-                    (user_1, user_2,last_message)
-                    VALUES
-                    (${data.from_user}, ${data.to_user}, ${rows.insertId})
-                    `,function(err,rows3){console.log(err)})
-                    }
-                }
-                })
-                connection.query(`
-                SELECT firstName, surname
-                FROM users  
-                WHERE id = ${data.from_user}
-                `,function(err,rows4){
+                    SELECT *
+                    FROM chats 
+                    WHERE (user_1 = ${datos.from_user} OR user_2 = ${datos.from_user}) AND (user_1 = ${datos.to_user} OR user_2 = ${datos.to_user})
+                    `,function(err,rows2){
                     if(err){console.log(err)}
                     else{
-                        console.log(onlineUsers[data.correo])  
-                        if(onlineUsers[data.correo]){
-                            io.to(onlineUsers[data.correo]).emit('MESSAGE_SEND',{
-                                id:rows.insertId, 
-                                message: data.message,  
-                                from_user: data.from_user, 
-                                timestamp: data.timestamp, 
-                                firstName: rows4[0].firstName,
-                                surname: rows4[0].surname
-                            })      
+                        if(rows2.length == 0){
+                        connection.query(`
+                        INSERT INTO chats
+                        (user_1, user_2,last_message)
+                        VALUES
+                        (${datos.from_user}, ${datos.to_user}, ${rows.insertId})
+                        `,function(err,rows3){console.log(err)})
                         }
                     }
-                })
-                
-            }
+                    })
+                    connection.query(`
+                    SELECT firstName, surname
+                    FROM users  
+                    WHERE id = ${datos.from_user}
+                    `,function(err,rows4){
+                        if(err){console.log(err)}
+                        else{
+                            console.log(onlineUsers[datos.correo])  
+                            if(onlineUsers[datos.correo]){
+                                io.to(onlineUsers[datos.correo]).emit('MESSAGE_SEND',{
+                                    id:rows.insertId, 
+                                    message: datos.message,  
+                                    from_user: datos.from_user, 
+                                    timestamp: datos.timestamp, 
+                                    firstName: rows4[0].firstName,
+                                    surname: rows4[0].surname
+                                })      
+                            }
+                        }
+                    })
+                }
+                var token;
+                var message;
+                var data;
+                connection.query(`
+                SELECT *
+                FROM users
+                WHERE users.id = ${datos.to_user}
+                `, function(err,rows){
+                    token = rows[0].pushtoken;
+                    connection.query(`
+                    SELECT users.firstname, users.surname, profiles.avatar
+                    FROM users
+                    INNER JOIN profiles ON profiles.user_id = users.id
+                    AND users.id = ${datos.from_user}
+                    `,function(err,rows){
+                        message = 'You got a message from '+rows[0].firstname+' '+rows[0].surname;
+                        data = {
+                            text: 'You got a message from '+rows[0].firstname+' '+rows[0].surname+'',
+                            time: datos.timestamp,
+                            avatar: rows[0].avatar
+                        }
+                        notify(token,message,data);
+                    });
+                });
 
-            var token;
-            var message;
-            var data;
-          
-              connection.query(`
-              SELECT *
-              FROM users
-              WHERE users.id = ${data.to_user}
-              `, function(err,rows){
-                token = rows[0].pushtoken;
-                  connection.query(`
-                  SELECT users.firstname, users.surname, profiles.avatar
-                  FROM users
-                  INNER JOIN profiles ON profiles.user_id = users.id
-                  AND users.id = ${data.from_user}
-                  `,function(err,rows){
-                    message = 'You got a message from '+rows[0].firstname+' '+rows[0].surname+'';
-                    data = {
-                        time: data.timestamp,
-                        avatar: rows[0].avatar
-                      }
-                    notify(token,message,data);
-                  });
-              });
-
-        });
+            });
 
         })
         socket.on('disconnect', function(socket){

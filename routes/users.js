@@ -23,7 +23,11 @@ router.post("/login", function(req, res) {
       message: 'Password is required',
     });
   }
-  connection.query(`SELECT * FROM users WHERE correo = '${req.body.correo}'`, function(err, rows){
+  connection.query(`SELECT users.id, users.firstName, users.surname, users.password, users.correo, users.privilege, 
+  profiles.avatar, profiles.university
+  FROM users 
+  JOIN profiles ON users.id = profiles.user_id
+  WHERE correo = '${req.body.correo}'`, function(err, rows){
       if (err) {console.log(err); return res.json({message: 'Error on login', valid:false});}
       if (!rows.length) {
           return res.json({message: 'Email not exist or is not verified', valid:false});
@@ -35,6 +39,12 @@ router.post("/login", function(req, res) {
       return res.json({message: 'Logged', valid:true, user:rows[0]});
   });
 });
+
+router.post("/loginAdmin", passport.authenticate('login', {
+  successRedirect: '/dashboard',
+  failureRedirect: '/',
+  failureFlash : true 
+}));
 
 router.post("/register", function(req, res, next) {
   var host = req.protocol + '://' + req.get('host')
@@ -362,6 +372,13 @@ router.get('/logout', function(req, res) {
 
 
 module.exports = router;
+
+function isLoggedIn(req, res, next) {
+	if (req.isAuthenticated())
+		return next();
+	res.redirect('/');
+}
+
 
 function isLoggedIn(req, res, next) {
 	if (req.isAuthenticated())

@@ -24,7 +24,7 @@ class LoginScreen extends React.Component {
     const data = this.state.user
     axios({
       method: 'POST',
-      url:'/api/login',
+      url:'/api/loginAdmin',
       headers:{
         "Content-Type": "application/json",
         "Accept": "application/json"
