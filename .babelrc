@@ -1,6 +1,6 @@
 {
   "presets": [
-    [ "@babel/env", { "targets": {"node": "current" }, },"@babel/preset-react"]
+    [ "@babel/env", { "targets": {"node": "current" } },"@babel/preset-react"]
   ],
   "plugins": [
     "@babel/plugin-proposal-export-default-from"

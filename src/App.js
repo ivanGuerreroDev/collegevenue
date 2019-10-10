@@ -13,7 +13,7 @@ import routes from "./routes";
 import withTracker from "./withTracker";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./shards-dashboard/styles/shards-dashboards.1.1.0.min.css";
+import "./assets/shards-dashboards.1.1.0.min.css";
 
 
 const PrivateRoute = ({component: Component, layout: Layout, authed, ...rest }) => (

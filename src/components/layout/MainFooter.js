@@ -7,6 +7,7 @@ const MainFooter = ({ contained, menuItems, copyright }) => (
   <footer className="main-footer d-flex p-2 px-3 bg-white border-top">
     <Container fluid={contained}>
       <Row>
+        {/*
         <Nav>
           {menuItems.map((item, idx) => (
             <NavItem key={idx}>
@@ -17,6 +18,7 @@ const MainFooter = ({ contained, menuItems, copyright }) => (
           ))}
         </Nav>
         <span className="copyright ml-auto my-auto mr-2">{copyright}</span>
+          */}
       </Row>
     </Container>
   </footer>

@@ -15,7 +15,10 @@ import User from "./views/User";
 import Tables from "./views/Tables";
 import BlogPosts from "./views/BlogPosts";
 import Login from "./views/Login"; 
-
+import Domains from "./views/Domains"; 
+import Posts from "./views/Posts"; 
+import SystemMessage from "./views/SystemMessage"; 
+ 
 export default [
   {
     path: "/",
@@ -30,6 +33,18 @@ export default [
     layout: DefaultLayout,
     component: BlogOverview
   },
+  {
+    path: "/domains",
+    protected: true,
+    layout: DefaultLayout,
+    component: Domains
+  },
+  {
+    path: "/posts",
+    protected: true,
+    layout: DefaultLayout,
+    component: Posts
+  },
   { 
     path: "/users",
     layout: DefaultLayout,
@@ -41,6 +56,12 @@ export default [
     protected: true,
     layout: DefaultLayout,
     component: User
+  },
+  { 
+    path: "/system-message",
+    layout: DefaultLayout,
+    protected: true,
+    component: SystemMessage
   },
   {
     path: "/user-profile-lite",

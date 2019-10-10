@@ -28,6 +28,7 @@ class User extends React.Component {
     }
     this.updateUser = this.updateUser.bind(this);
     this.createUser = this.createUser.bind(this);
+    this.deleteUser = this.deleteUser.bind(this);
   }
   callAPI() {
     const id = this.state.idUser
@@ -143,6 +144,32 @@ class User extends React.Component {
     } 
   }
 
+  deleteUser(e){
+    e.preventDefault()
+    var r = confirm("are you sure?");
+    if (r == true) {
+      fetch(`/api/user/delete`, {    
+        method: 'POST', 
+        body: JSON.stringify({
+          id: this.state.idUser
+        }),
+        headers:{
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        }
+      })
+      .then(res => res.json())
+      .then(res => {
+        this.setState(res)
+        this.callAPI()
+      }).catch((err) => {
+        if (!this.quiet) console.error(err)
+        throw err;
+      });
+    } else {
+      
+    }
+  }
   
   render() {
     return (
@@ -221,11 +248,12 @@ class User extends React.Component {
                                 <option selected={this.selectPrivilege('admin')} >admin</option>
                                 <option selected={this.selectPrivilege('user')}>user</option>
                                 <option selected={this.selectPrivilege('intern')}>intern</option>
+                                <option selected={this.selectPrivilege('disabled')}>disabled</option>
                               </FormSelect>
                             </Col>
                             
                           </Row>
-
+                          <Button type="submit" onClick={this.deleteUser}>Delete User</Button>
                           {this.handleButtonSend()}
                           {this.renderMessagge()}
                         </Form>

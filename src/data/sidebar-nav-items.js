@@ -1,11 +1,30 @@
 export default function() {
-  return [
+  return [    
     {
-      title: "Users",
+      title: "Domains",
+      to: "/domains",
+      htmlBefore: '<i class="material-icons">edit</i>',
+      htmlAfter: ""
+    },          
+    {
+      title: "Users", 
       to: "/users",
       htmlBefore: '<i class="material-icons">person</i>',
       htmlAfter: ""
-    },
+    },    
+    {
+      title: "Posts", 
+      to: "/posts",
+      htmlBefore: '<i class="material-icons">vertical_split</i>',
+      htmlAfter: ""
+    }, 
+    {
+      title: "System Message", 
+      to: "/system-message",
+      htmlBefore: '<i class="material-icons">note_add</i>',
+      htmlAfter: ""
+    }, 
+     
     /*
     {
       title: "Blog Dashboard",
@@ -17,7 +36,7 @@ export default function() {
       title: "Blog Posts",
       htmlBefore: '<i class="material-icons">vertical_split</i>',
       to: "/blog-posts",
-    },
+    }, 
     {
       title: "Add New Post",
       htmlBefore: '<i class="material-icons">note_add</i>',

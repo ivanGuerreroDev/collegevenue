@@ -38,7 +38,8 @@ class LoginScreen extends React.Component {
         this.props.history.push('/dashboard')
         this.setState({message: response.data.message})
       }else{ 
-        this.setState(response)   
+        console.log(response.data)
+        this.setState({message: response.data.message})   
       } 
     })  
     .catch(err => {
@@ -61,7 +62,7 @@ class LoginScreen extends React.Component {
                   className="mb-2"
                   id="feCorreo"
                   type="text"
-                  placeholder="Correo"
+                  placeholder="Email"
                   onChange={(e) => this.changeInput(e,'correo')}
                   value={this.state.user.correo?this.state.user.correo:null}
                 />

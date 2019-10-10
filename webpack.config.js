@@ -3,13 +3,13 @@ const path = require("path");
 const debug = require("debug");
 const HtmlWebPackPlugin = require("html-webpack-plugin");
 
-const BUILD_DIR = path.resolve(__dirname, "public");
-const APP_DIR = path.resolve(__dirname, "src");
-const SCSS_DIR = path.resolve(__dirname, "src/assets/scss");
-const SRC = path.resolve(__dirname, "public");
-var port = process.env.PORT || 8080;
+const BUILD_DIR = path.resolve(__dirname, "./public");
+const APP_DIR = path.resolve(__dirname, "./src");
+const SCSS_DIR = path.resolve(__dirname, "./src/assets/scss");
+const SRC = path.resolve(__dirname, "./public");
+var port = process.env.PORT || 8081;
+console.log(APP_DIR);
 var config = {
-  context: path.join(__dirname, "src"),
   devtool: '',
   entry: APP_DIR + "/index.js",
   watch: true,
